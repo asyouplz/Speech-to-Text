@@ -53,7 +53,7 @@ export class UIComponentFactory {
         }
 
         const progressBar = progressContainer.createDiv({
-            cls: 'sn-progress-bar',
+            cls: 'sn-inline-progress-bar',
             attr: {
                 role: 'progressbar',
                 'aria-valuenow': String(value),
@@ -64,7 +64,7 @@ export class UIComponentFactory {
         });
 
         const progressFill = progressBar.createDiv({
-            cls: 'sn-progress-fill',
+            cls: 'sn-inline-progress-fill',
             attr: {
                 style: `width: ${(value / max) * 100}%`,
             },
@@ -73,7 +73,7 @@ export class UIComponentFactory {
         // 접근성을 위한 텍스트
         progressFill.createSpan({
             text: `${Math.round((value / max) * 100)}%`,
-            cls: 'sn-progress-text',
+            cls: 'sn-inline-progress-text',
         });
 
         return progressContainer;
