@@ -14,6 +14,8 @@ on:
 permissions:
     contents: write
     packages: write
+    id-token: write
+    attestations: write
 
 jobs:
     # 버전 검증
@@ -90,6 +92,13 @@ jobs:
                     exit 1
                   fi
                   echo "✅ All required files present"
+
+            - name: Attest release assets
+              uses: actions/attest@v4
+              with:
+                  subject-path: |
+                      main.js
+                      styles.css
 
             - name: Create release archive
               run: |
