@@ -13,7 +13,6 @@ jest.mock('obsidian', () => ({
 const appendTabs = (container: HTMLElement): HTMLElement[] =>
     Array.from({ length: 4 }, () => container.createDiv('format-tab-content'));
 
-beforeAll(() => installObsidianDom(window));
 afterEach(() => document.body.replaceChildren());
 
 function modalWithRenderSpy() {

@@ -11,7 +11,6 @@ import { SettingsTab } from '../../src/ui/settings/SettingsTab';
 import { SimpleSettingsTab } from '../../src/ui/settings/SimpleSettingsTab';
 import { DEFAULT_SETTINGS } from '../../src/domain/models/Settings';
 import type SpeechToTextPlugin from '../../src/main';
-import { installObsidianDom } from '../helpers/obsidianDom';
 
 const mockChanges = new Map<string, (value: unknown) => Promise<void>>();
 
@@ -102,7 +101,6 @@ function pluginStub(): SpeechToTextPlugin {
     } as unknown as SpeechToTextPlugin;
 }
 
-beforeAll(() => installObsidianDom(window));
 beforeEach(() => {
     mockChanges.clear();
     Platform.isMobile = false;
@@ -168,3 +166,15 @@ test.each([true, false])(
         expect(mockChanges.has('General provider API key')).toBe(true);
     }
 );
+
+test('legacy mobile settings render no microphone controls', () => {
+    Platform.isMobile = true;
+    jest.mocked(requireApiVersion).mockReturnValue(false);
+    const plugin = pluginStub();
+    const tab = new SettingsTab({} as App, plugin);
+    tab.display();
+    expect(mockChanges.has('Language')).toBe(true);
+    expect(mockChanges.has('Enable live transcription')).toBe(false);
+    expect(mockChanges.has('Meeting context')).toBe(false);
+    expect(plugin.saveSettings).not.toHaveBeenCalled();
+});

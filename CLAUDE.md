@@ -48,7 +48,6 @@ SpeechNote/
 │   ├── domain/             # Domain models & settings schema
 │   ├── infrastructure/     # External integrations (APIs, storage, logging)
 │   ├── patterns/           # Shared design pattern implementations
-│   ├── testing/            # Test helpers used inside src/
 │   ├── types/              # Shared TypeScript types & type guards
 │   ├── ui/                 # Obsidian UI components (settings, modals, etc.)
 │   └── utils/              # Generic utilities
@@ -67,6 +66,7 @@ SpeechNote/
 ├── .github/workflows/      # CI/CD pipelines
 ├── manifest.json           # Obsidian plugin metadata
 ├── versions.json           # Version history
+├── eslint.config.mjs       # Official Obsidian rules plus project lint rules
 ├── esbuild.config.mjs      # Bundle configuration
 ├── jest.config.js          # Test configuration
 ├── tsconfig.json           # TypeScript configuration
@@ -194,6 +194,8 @@ npm run test:ci          # CI mode with coverage (maxWorkers=2)
 npm run test:debug       # attach Node debugger
 ```
 
+DOM unit tests must opt into `/** @jest-environment jsdom */`. Shared setup installs `tests/helpers/obsidianDom.js` in DOM environments; E2E setup uses the same helpers. Keep browser-only UI tests out of the default Node environment. The Jest-only `TestingFramework.ts` lives in `tests/helpers/`.
+
 The Obsidian API is mapped to `tests/mocks/obsidian.mock.ts`. Tests may import from `obsidian`; Jest resolves that import to the mock, so no live Obsidian runtime is required.
 
 ---
@@ -216,9 +218,9 @@ The Obsidian API is mapped to `tests/mocks/obsidian.mock.ts`. Tests may import f
 
 ### Linting (ESLint)
 
--   Config: `.eslintrc.json` — compatible with Obsidian plugin review bot rules
+-   Config: `eslint.config.mjs` — extends the official `eslint-plugin-obsidianmd` flat configuration
 -   Run `npm run lint:fix` for auto-fixable issues
--   Zero ESLint **errors** are enforced in CI; warnings are flagged but non-blocking
+-   Zero ESLint **errors and warnings** are enforced in CI (`--max-warnings=0`); lint execution failures also fail the quality check
 
 ### Comments
 
@@ -286,7 +288,7 @@ The build is **not** a standard npm package — `main.js` is the direct plugin a
 
 ### CI Requirements (blocking)
 
-1. ESLint passes with zero errors
+1. ESLint passes with zero errors and warnings
 2. Prettier formatting check passes
 3. TypeScript compiles cleanly (`typecheck`)
 4. Build succeeds and bundle ≤ 5 MB
