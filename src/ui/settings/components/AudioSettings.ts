@@ -1,4 +1,4 @@
-import { withSliderTooltip } from '../settingDefinitions';
+import { withCompatibleSliderValue } from '../settingDefinitions';
 import { Setting } from 'obsidian';
 import type SpeechToTextPlugin from '../../../main';
 
@@ -84,7 +84,7 @@ export class AudioSettings {
         tempValue.setText(String(this.plugin.settings.temperature || 0));
 
         temperatureSetting.addSlider((slider) =>
-            withSliderTooltip(
+            withCompatibleSliderValue(
                 slider
                     .setLimits(0, 1, 0.1)
                     .setValue(this.plugin.settings.temperature || 0)
@@ -120,7 +120,7 @@ export class AudioSettings {
         sizeValue.setText(`${currentSize} megabytes`);
 
         fileSizeSetting.addSlider((slider) =>
-            withSliderTooltip(
+            withCompatibleSliderValue(
                 slider
                     .setLimits(1, 25, 1)
                     .setValue(currentSize)

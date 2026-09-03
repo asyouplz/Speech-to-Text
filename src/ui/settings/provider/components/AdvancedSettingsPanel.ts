@@ -1,4 +1,4 @@
-import { withSliderTooltip } from '../../settingDefinitions';
+import { withCompatibleSliderValue } from '../../settingDefinitions';
 import { Setting, Notice } from 'obsidian';
 import type SpeechToTextPlugin from '../../../../main';
 import { SelectionStrategy } from '../../../../infrastructure/api/providers/ITranscriber';
@@ -151,7 +151,7 @@ export class AdvancedSettingsPanel {
             .setName('Latency weight')
             .setDesc('Importance of response time (0-100)')
             .addSlider((slider) => {
-                withSliderTooltip(
+                withCompatibleSliderValue(
                     slider.setLimits(0, 100, 5).setValue(this.plugin.settings.latencyWeight || 40)
                 ).onChange(async (value) => {
                     this.plugin.settings.latencyWeight = value;
@@ -165,7 +165,7 @@ export class AdvancedSettingsPanel {
             .setName('Success rate weight')
             .setDesc('Importance of reliability (0-100)')
             .addSlider((slider) => {
-                withSliderTooltip(
+                withCompatibleSliderValue(
                     slider.setLimits(0, 100, 5).setValue(this.plugin.settings.successWeight || 35)
                 ).onChange(async (value) => {
                     this.plugin.settings.successWeight = value;
@@ -179,7 +179,7 @@ export class AdvancedSettingsPanel {
             .setName('Cost weight')
             .setDesc('Importance of cost efficiency (0-100)')
             .addSlider((slider) => {
-                withSliderTooltip(
+                withCompatibleSliderValue(
                     slider.setLimits(0, 100, 5).setValue(this.plugin.settings.costWeight || 25)
                 ).onChange(async (value) => {
                     this.plugin.settings.costWeight = value;
@@ -229,7 +229,7 @@ export class AdvancedSettingsPanel {
             .setName('Budget alert')
             .setDesc('Alert when spending reaches this percentage')
             .addSlider((slider) => {
-                withSliderTooltip(
+                withCompatibleSliderValue(
                     slider.setLimits(50, 100, 5).setValue(this.plugin.settings.budgetAlert || 80)
                 ).onChange(async (value) => {
                     this.plugin.settings.budgetAlert = value;
@@ -265,7 +265,7 @@ export class AdvancedSettingsPanel {
             .setName('Minimum confidence')
             .setDesc('Reject transcriptions below this confidence level (0-100%)')
             .addSlider((slider) => {
-                withSliderTooltip(
+                withCompatibleSliderValue(
                     slider.setLimits(0, 100, 5).setValue(this.plugin.settings.minConfidence || 70)
                 ).onChange(async (value) => {
                     this.plugin.settings.minConfidence = value;
@@ -353,7 +353,7 @@ export class AdvancedSettingsPanel {
                 .setName('Traffic split')
                 .setDesc('Percentage of requests for provider a vs b')
                 .addSlider((slider) => {
-                    withSliderTooltip(
+                    withCompatibleSliderValue(
                         slider.setLimits(0, 100, 5).setValue(this.abTestSplit)
                     ).onChange(async (value) => {
                         this.abTestSplit = value;

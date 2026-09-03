@@ -1,4 +1,4 @@
-import { withSliderTooltip } from '../settingDefinitions';
+import { withCompatibleSliderValue } from '../settingDefinitions';
 import { Setting, Notice } from 'obsidian';
 import type SpeechToTextPlugin from '../../../main';
 import {
@@ -581,7 +581,7 @@ export class DeepgramSettings {
             .setName('Maximum chunk size')
             .setDesc('Maximum size per chunk in megabytes (recommended: 50 megabytes)')
             .addSlider((slider) => {
-                withSliderTooltip(
+                withCompatibleSliderValue(
                     slider
                         .setLimits(10, 100, 10)
                         .setValue(this.plugin.settings.maxChunkSizeMB ?? 50)

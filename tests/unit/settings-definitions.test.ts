@@ -6,11 +6,13 @@ import {
     Setting,
     SettingDefinitionRender,
     SettingGroup,
+    SliderComponent,
 } from 'obsidian';
 import { SettingsTab } from '../../src/ui/settings/SettingsTab';
 import { SimpleSettingsTab } from '../../src/ui/settings/SimpleSettingsTab';
 import { DEFAULT_SETTINGS } from '../../src/domain/models/Settings';
 import type SpeechToTextPlugin from '../../src/main';
+import { withCompatibleSliderValue } from '../../src/ui/settings/settingDefinitions';
 
 const mockChanges = new Map<string, (value: unknown) => Promise<void>>();
 
@@ -178,3 +180,30 @@ test('legacy mobile settings render no microphone controls', () => {
     expect(mockChanges.has('Meeting context')).toBe(false);
     expect(plugin.saveSettings).not.toHaveBeenCalled();
 });
+
+test.each([
+    { supported: true, expectedValues: 0 },
+    { supported: false, expectedValues: 1 },
+])(
+    'slider values use the Obsidian display when 1.13 support is $supported',
+    ({ supported, expectedValues }) => {
+        jest.mocked(requireApiVersion).mockReturnValue(supported);
+        const container = document.body.createDiv();
+        const sliderEl = container.createEl('input', { type: 'range' });
+        sliderEl.value = '25';
+        const slider = {
+            sliderEl,
+            getValue: () => Number(sliderEl.value),
+        } as SliderComponent;
+
+        expect(withCompatibleSliderValue(slider)).toBe(slider);
+        expect(container.querySelectorAll('.sn-slider-value')).toHaveLength(expectedValues);
+
+        sliderEl.value = '50';
+        sliderEl.dispatchEvent(new Event('input'));
+        const valueEl = container.querySelector('.sn-slider-value');
+        expect(valueEl?.textContent).toBe(supported ? undefined : '50');
+        expect(sliderEl.title).toBe('');
+        container.remove();
+    }
+);

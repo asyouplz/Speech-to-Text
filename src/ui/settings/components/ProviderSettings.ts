@@ -1,4 +1,4 @@
-import { withSliderTooltip } from '../settingDefinitions';
+import { withCompatibleSliderValue } from '../settingDefinitions';
 import { Setting, Notice } from 'obsidian';
 import type SpeechToTextPlugin from '../../../main';
 import {
@@ -266,7 +266,7 @@ export class ProviderSettings {
             .setName('Minimum quality threshold')
             .setDesc('Minimum acceptable transcription accuracy (0-100%)')
             .addSlider((slider) => {
-                withSliderTooltip(
+                withCompatibleSliderValue(
                     slider
                         .setLimits(0, 100, 5)
                         .setValue(this.plugin.settings.qualityThreshold || 85)
@@ -311,11 +311,11 @@ export class ProviderSettings {
             .addSlider((slider) => {
                 const currentSplit = this.plugin.settings.abTestSplit || 50;
 
-                withSliderTooltip(slider.setLimits(0, 100, 5).setValue(currentSplit)).onChange(
-                    async (value) => {
-                        await this.saveABTestSplit(value);
-                    }
-                );
+                withCompatibleSliderValue(
+                    slider.setLimits(0, 100, 5).setValue(currentSplit)
+                ).onChange(async (value) => {
+                    await this.saveABTestSplit(value);
+                });
 
                 // 분할 비율 표시
                 const displayEl = containerEl.createDiv({ cls: 'sn-split-display' });

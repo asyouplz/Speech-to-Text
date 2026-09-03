@@ -8,11 +8,11 @@
  */
 
 import '@testing-library/jest-dom';
+import { requestUrl } from 'obsidian';
+import { TextEncoder, TextDecoder } from 'util';
 import { installObsidianDom } from './obsidianDom';
 
 installObsidianDom(window);
-import { requestUrl } from 'obsidian';
-import { TextEncoder, TextDecoder } from 'util';
 
 // 전역 객체 설정
 global.TextEncoder = TextEncoder;

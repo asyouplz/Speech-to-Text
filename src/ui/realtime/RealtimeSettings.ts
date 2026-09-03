@@ -1,4 +1,4 @@
-import { withSliderTooltip } from '../settings/settingDefinitions';
+import { withCompatibleSliderValue } from '../settings/settingDefinitions';
 import { Platform, Setting } from 'obsidian';
 import type SpeechToTextPlugin from '../../main';
 import { normalizeRealtimeSettings } from '../../core/realtime/types';
@@ -53,12 +53,12 @@ export function displayRealtimeSettings(container: HTMLElement, plugin: SpeechTo
             '1–55 minutes per recording. This limit is independent of file transcription budgets. Start another session for longer meetings.'
         )
         .addSlider((slider) =>
-            withSliderTooltip(slider.setLimits(1, 55, 1).setValue(settings.maxMinutes)).onChange(
-                async (value) => {
-                    settings.maxMinutes = value;
-                    await plugin.saveSettings();
-                }
-            )
+            withCompatibleSliderValue(
+                slider.setLimits(1, 55, 1).setValue(settings.maxMinutes)
+            ).onChange(async (value) => {
+                settings.maxMinutes = value;
+                await plugin.saveSettings();
+            })
         );
     new Setting(container)
         .setName('Automatic speaker transcription after stopping')

@@ -1,4 +1,4 @@
-import { withSliderTooltip } from '../settingDefinitions';
+import { withCompatibleSliderValue } from '../settingDefinitions';
 import { Setting } from 'obsidian';
 import type SpeechToTextPlugin from '../../../main';
 import { Notice } from 'obsidian';
@@ -65,7 +65,7 @@ export class AdvancedSettings {
             ttlValue.setText(`${currentHours} h`);
 
             ttlSetting.addSlider((slider) =>
-                withSliderTooltip(
+                withCompatibleSliderValue(
                     slider
                         .setLimits(1, 168, 1) // 1시간 ~ 1주일
                         .setValue(currentHours)
@@ -240,7 +240,7 @@ export class AdvancedSettings {
         timeoutValue.setText('Timeout: 30 seconds');
 
         timeoutSetting.addSlider((slider) =>
-            withSliderTooltip(
+            withCompatibleSliderValue(
                 slider
                     .setLimits(10, 120, 5)
                     .setValue(30)
