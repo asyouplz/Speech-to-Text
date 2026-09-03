@@ -61,7 +61,7 @@ export default [
                     enforceCamelCaseLower: true,
                     brands: ['Deepgram', 'OpenAI', 'Whisper', 'Obsidian', 'JavaScript', 'Python'],
                     allowAutoFix: true,
-                    ignoreWords: ['MiB', 'cursor', 's'],
+                    ignoreWords: ['MiB', 'cursor'],
                     ignoreRegex: ['^https?://'],
                 },
             ],

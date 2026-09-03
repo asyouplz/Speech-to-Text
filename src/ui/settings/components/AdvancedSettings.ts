@@ -237,7 +237,7 @@ export class AdvancedSettings {
             .setDesc('API request timeout in seconds');
 
         const timeoutValue = containerEl.createDiv({ cls: 'timeout-value' });
-        timeoutValue.setText('30 s');
+        timeoutValue.setText('Timeout: 30 seconds');
 
         timeoutSetting.addSlider((slider) =>
             withSliderTooltip(
@@ -245,7 +245,7 @@ export class AdvancedSettings {
                     .setLimits(10, 120, 5)
                     .setValue(30)
                     .onChange(async (value) => {
-                        timeoutValue.setText(`${value} s`);
+                        timeoutValue.setText(`Timeout: ${value} seconds`);
                         // 타임아웃 설정 저장
                         await this.plugin.saveSettings();
                     })
