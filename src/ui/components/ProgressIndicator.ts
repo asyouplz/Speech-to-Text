@@ -55,13 +55,13 @@ export class ProgressIndicator {
         spinner.appendChild(this.getSpinnerElement());
 
         // 진행률 바 컨테이너
-        const barContainer = content.createDiv('sn-progress-bar-container');
+        const barContainer = content.createDiv('sn-inline-progress-bar-container');
         barContainer.addClass('sn-hidden');
 
         // 진행률 바
-        const progressBar = barContainer.createDiv('sn-progress-bar');
-        progressBar.createDiv('sn-progress-fill');
-        const progressText = progressBar.createDiv('sn-progress-text');
+        const progressBar = barContainer.createDiv('sn-inline-progress-bar');
+        progressBar.createDiv('sn-inline-progress-fill');
+        const progressText = progressBar.createDiv('sn-inline-progress-text');
         progressText.setText('0%');
 
         // 메시지
@@ -104,7 +104,9 @@ export class ProgressIndicator {
         }
 
         // 진행률 바 표시/숨김
-        const barContainer = this.progressElement.querySelector('.sn-progress-bar-container');
+        const barContainer = this.progressElement.querySelector(
+            '.sn-inline-progress-bar-container'
+        );
         const spinner = this.progressElement.querySelector('.sn-progress-spinner');
 
         if (showProgressBar) {
@@ -163,8 +165,8 @@ export class ProgressIndicator {
         this.currentProgress = Math.min(100, Math.max(0, progress));
 
         // 진행률 바 업데이트
-        const progressFill = this.progressElement.querySelector('.sn-progress-fill');
-        const progressText = this.progressElement.querySelector('.sn-progress-text');
+        const progressFill = this.progressElement.querySelector('.sn-inline-progress-fill');
+        const progressText = this.progressElement.querySelector('.sn-inline-progress-text');
 
         if (progressFill instanceof HTMLElement && progressText instanceof HTMLElement) {
             progressFill.setAttribute('style', `--sn-progress-width:${this.currentProgress}%`);

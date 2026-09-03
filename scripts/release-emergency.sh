@@ -162,7 +162,7 @@ git add manifest.json package.json versions.json
 git commit -m "chore: bump version to ${NEW_VERSION}"
 
 # Create tag
-TAG="v${NEW_VERSION}"
+TAG="${NEW_VERSION}"
 echo "🏷️  Creating tag: ${TAG}..."
 git tag -a "$TAG" -m "Release ${TAG}"
 
