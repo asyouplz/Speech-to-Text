@@ -2190,6 +2190,9 @@ textarea:focus-visible,
         overflow-x: auto;
     }
 }
+.speechnote-live-transcript {
+    white-space: pre-wrap;
+}
 /**
  * Provider Settings UI Styles
  * 
