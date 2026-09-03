@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
   # Note: issues/pull-requests write permissions removed - not needed for current semantic-release config
 
 jobs:
@@ -68,6 +70,13 @@ jobs:
           node -e "JSON.parse(require('fs').readFileSync('manifest.json'))" || { echo "❌ manifest.json is invalid JSON"; exit 1; }
           
           echo "✅ All build artifacts present, non-empty, and syntax is valid"
+
+      - name: Attest release assets
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            main.js
+            styles.css
 
       - name: Run semantic-release
         env:
