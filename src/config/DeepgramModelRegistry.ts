@@ -214,6 +214,7 @@ const DEFAULT_CONFIG = {
     },
 };
 
+import { isPlainRecord } from '../types/guards';
 import { DeepgramLogger } from '../ui/settings/helpers/DeepgramLogger';
 import deepgramModelsConfigJson from '../../config/deepgram-models.json';
 
@@ -222,8 +223,12 @@ interface DeepgramRegistryConfig {
     features: Record<string, unknown>;
 }
 
-// Individual entries are checked by isValidModel/isValidFeature before use.
-const deepgramModelsConfig: DeepgramRegistryConfig = deepgramModelsConfigJson ?? DEFAULT_CONFIG;
+// JSON is external input; validate its shape before inspecting individual entries.
+const deepgramModelsConfig: unknown = deepgramModelsConfigJson;
+
+function isRegistryConfig(value: unknown): value is DeepgramRegistryConfig {
+    return isPlainRecord(value) && isPlainRecord(value.models) && isPlainRecord(value.features);
+}
 
 /**
  * Deepgram 모델 정보 인터페이스
@@ -325,7 +330,9 @@ export class DeepgramModelRegistry {
      */
     private loadConfiguration(): void {
         try {
-            const config = deepgramModelsConfig || DEFAULT_CONFIG;
+            const config = isRegistryConfig(deepgramModelsConfig)
+                ? deepgramModelsConfig
+                : DEFAULT_CONFIG;
 
             this.loadModels(config);
             this.loadFeatures(config);
