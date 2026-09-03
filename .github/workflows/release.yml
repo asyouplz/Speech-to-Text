@@ -3,17 +3,19 @@ name: Release Pipeline
 on:
     push:
         tags:
-            - 'v*'
+            - '[0-9]*.[0-9]*.[0-9]*'
     workflow_dispatch:
         inputs:
             version:
-                description: 'Release version (e.g., v3.1.0)'
+                description: 'Release version (e.g., 3.1.0)'
                 required: true
                 type: string
 
 permissions:
     contents: write
     packages: write
+    id-token: write
+    attestations: write
 
 jobs:
     # 버전 검증
@@ -40,10 +42,10 @@ jobs:
 
                   echo "Version: $VERSION"
 
-                  # Validate version format (v0.0.0)
-                  if ! [[ $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+                  # Validate version format (0.0.0)
+                  if ! [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
                     echo "❌ Invalid version format: $VERSION"
-                    echo "Expected format: v0.0.0 or v0.0.0-beta"
+                    echo "Expected format: 0.0.0 or 0.0.0-beta"
                     exit 1
                   fi
 
@@ -90,6 +92,13 @@ jobs:
                     exit 1
                   fi
                   echo "✅ All required files present"
+
+            - name: Attest release assets
+              uses: actions/attest@v4
+              with:
+                  subject-path: |
+                      main.js
+                      styles.css
 
             - name: Create release archive
               run: |

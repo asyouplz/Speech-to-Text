@@ -207,19 +207,19 @@
 
 /* === Stat Value Colors === */
 .speech-to-text-settings .sn-stat-excellent {
-    color: var(--interactive-success) !important;
+    color: var(--interactive-success);
 }
 
 .speech-to-text-settings .sn-stat-good {
-    color: var(--text-accent) !important;
+    color: var(--text-accent);
 }
 
 .speech-to-text-settings .sn-stat-fair {
-    color: var(--text-warning) !important;
+    color: var(--text-warning);
 }
 
 .speech-to-text-settings .sn-stat-poor {
-    color: var(--text-error) !important;
+    color: var(--text-error);
 }
 
 /* === Comparison Chart === */

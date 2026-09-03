@@ -564,11 +564,11 @@
     }
 }
 
-.sn-progress-bar-container {
+.sn-inline-progress-bar-container {
     margin: 20px 0;
 }
 
-.sn-progress-bar {
+.sn-inline-progress-bar {
     height: 20px;
     background: var(--background-modifier-border);
     border-radius: 10px;
@@ -576,21 +576,21 @@
     position: relative;
 }
 
-.sn-progress-fill {
+.sn-inline-progress-fill {
     height: 100%;
     background: var(--interactive-accent);
     transition: width 0.3s ease;
 }
 
-.sn-progress-fill.sn-is-warning {
+.sn-inline-progress-fill.sn-is-warning {
     background: var(--text-warning);
 }
 
-.sn-progress-fill.sn-is-success {
+.sn-inline-progress-fill.sn-is-success {
     background: var(--text-success);
 }
 
-.sn-progress-text {
+.sn-inline-progress-text {
     position: absolute;
     top: 50%;
     left: 50%;
