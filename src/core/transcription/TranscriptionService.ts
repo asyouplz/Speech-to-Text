@@ -1,3 +1,4 @@
+import { isTestBuild } from '../../utils/buildEnvironment';
 import { TFile, requestUrl } from 'obsidian';
 import type {
     ITranscriptionService,
@@ -470,13 +471,7 @@ export class TranscriptionService implements ITranscriptionService {
         });
 
         try {
-            return (await Promise.race([effectiveFetchPromise, abortPromise])) as {
-                ok: boolean;
-                status: number;
-                statusText?: string;
-                json?: unknown;
-                text?: string;
-            };
+            return await Promise.race([effectiveFetchPromise, abortPromise]);
         } finally {
             if (
                 abortHandler &&
@@ -639,10 +634,7 @@ export class TranscriptionService implements ITranscriptionService {
     }
 
     private isTestEnvironment(): boolean {
-        if (typeof process === 'undefined') {
-            return false;
-        }
-        return typeof process.env === 'object' && process.env.NODE_ENV === 'test';
+        return isTestBuild;
     }
 
     private getEffectiveTimeoutMs(timeoutMs: number): number {
@@ -674,9 +666,9 @@ export class TranscriptionService implements ITranscriptionService {
             return promise;
         }
 
-        let timeoutId: ReturnType<typeof setTimeout> | undefined;
+        let timeoutId: number | undefined;
         const timeoutPromise = new Promise<never>((_, reject) => {
-            timeoutId = setTimeout(() => {
+            timeoutId = window.setTimeout(() => {
                 reject(signal ? this.createAbortError() : new Error('Request timeout'));
             }, effectiveTimeout);
         });
@@ -685,7 +677,7 @@ export class TranscriptionService implements ITranscriptionService {
             return await Promise.race([promise, timeoutPromise]);
         } finally {
             if (timeoutId) {
-                clearTimeout(timeoutId);
+                window.clearTimeout(timeoutId);
             }
         }
     }
@@ -709,7 +701,7 @@ export class TranscriptionService implements ITranscriptionService {
     }
 
     private async sleep(ms: number): Promise<void> {
-        await new Promise((resolve) => setTimeout(resolve, ms));
+        await new Promise((resolve) => window.setTimeout(resolve, ms));
     }
 
     private isRetryableError(error: Error): boolean {

@@ -44,7 +44,7 @@ export class CircularProgress {
     }
 
     create(container: HTMLElement): HTMLElement {
-        this.element = createEl('div', { cls: 'sn-circular-progress' });
+        this.element = createDiv({ cls: 'sn-circular-progress' });
         this.element.style.setProperty('--cp-size', `${this.options.size}px`);
         this.element.style.setProperty(
             '--cp-animation-duration',
@@ -52,7 +52,7 @@ export class CircularProgress {
         );
 
         // SVG 생성
-        this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        this.svg = createSvg('svg');
         this.svg.setAttribute('width', String(this.options.size));
         this.svg.setAttribute('height', String(this.options.size));
         this.svg.setAttribute('viewBox', `0 0 ${this.options.size} ${this.options.size}`);
@@ -62,7 +62,7 @@ export class CircularProgress {
         const circumference = 2 * Math.PI * radius;
 
         // 배경 원
-        this.backgroundCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        this.backgroundCircle = createSvg('circle');
         this.backgroundCircle.setAttribute('cx', String(center));
         this.backgroundCircle.setAttribute('cy', String(center));
         this.backgroundCircle.setAttribute('r', String(radius));
@@ -71,7 +71,7 @@ export class CircularProgress {
         this.backgroundCircle.setAttribute('stroke-width', String(this.options.strokeWidth));
 
         // 진행률 원
-        this.progressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        this.progressCircle = createSvg('circle');
         this.progressCircle.setAttribute('cx', String(center));
         this.progressCircle.setAttribute('cy', String(center));
         this.progressCircle.setAttribute('r', String(radius));
@@ -103,7 +103,7 @@ export class CircularProgress {
 
         // 퍼센트 텍스트
         if (this.options.showPercentage) {
-            this.percentageText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            this.percentageText = createSvg('text');
             this.percentageText.setAttribute('x', String(center));
             this.percentageText.setAttribute('y', String(center));
             this.percentageText.setAttribute('text-anchor', 'middle');
@@ -189,11 +189,11 @@ export class CircularProgress {
             this.setProgressImmediate(currentValue);
 
             if (progress < 1) {
-                this.animationFrame = requestAnimationFrame(animate);
+                this.animationFrame = window.requestAnimationFrame(animate);
             }
         };
 
-        this.animationFrame = requestAnimationFrame(animate);
+        this.animationFrame = window.requestAnimationFrame(animate);
     }
 
     /**
@@ -263,7 +263,7 @@ export class CircularProgress {
  */
 export class SemiCircularProgress extends CircularProgress {
     create(container: HTMLElement): HTMLElement {
-        this.element = createEl('div', { cls: 'sn-semi-circular-progress' });
+        this.element = createDiv({ cls: 'sn-semi-circular-progress' });
         this.element.style.setProperty('--cp-size', `${this.options.size}px`);
         this.element.style.setProperty(
             '--cp-animation-duration',
@@ -271,7 +271,7 @@ export class SemiCircularProgress extends CircularProgress {
         );
 
         // SVG 생성
-        this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        this.svg = createSvg('svg');
         this.svg.setAttribute('width', String(this.options.size));
         this.svg.setAttribute('height', String(this.options.size / 2));
         this.svg.setAttribute('viewBox', `0 0 ${this.options.size} ${this.options.size / 2}`);
@@ -281,7 +281,7 @@ export class SemiCircularProgress extends CircularProgress {
         const circumference = Math.PI * radius; // 반원이므로 PI * r
 
         // 배경 반원
-        this.backgroundCircle = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        this.backgroundCircle = createSvg('path');
         const backgroundPath = this.describeArc(center, center, radius, 0, 180);
         this.backgroundCircle.setAttribute('d', backgroundPath);
         this.backgroundCircle.setAttribute('fill', 'none');
@@ -289,7 +289,7 @@ export class SemiCircularProgress extends CircularProgress {
         this.backgroundCircle.setAttribute('stroke-width', String(this.options.strokeWidth));
 
         // 진행률 반원
-        this.progressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        this.progressCircle = createSvg('path');
         this.progressCircle.setAttribute('d', backgroundPath);
         this.progressCircle.setAttribute('fill', 'none');
         this.progressCircle.setAttribute('stroke', this.options.color);
@@ -310,7 +310,7 @@ export class SemiCircularProgress extends CircularProgress {
 
         // 퍼센트 텍스트
         if (this.options.showPercentage) {
-            this.percentageText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            this.percentageText = createSvg('text');
             this.percentageText.setAttribute('x', String(center));
             this.percentageText.setAttribute('y', String(center - 10));
             this.percentageText.setAttribute('text-anchor', 'middle');

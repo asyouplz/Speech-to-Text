@@ -1,3 +1,4 @@
+import { isDevelopmentBuild } from '../../utils/buildEnvironment';
 import type { ILogger } from '../../types';
 
 export { ILogger };
@@ -6,7 +7,7 @@ export class Logger implements ILogger {
     constructor(private prefix: string) {}
 
     debug(message: string, context?: unknown): void {
-        if (process.env.NODE_ENV === 'development') {
+        if (isDevelopmentBuild) {
             console.debug(`[${this.prefix}] DEBUG:`, message, context || '');
         }
     }

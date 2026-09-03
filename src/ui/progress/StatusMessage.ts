@@ -169,13 +169,13 @@ export class StatusMessageDisplay {
      * 컴포넌트 생성
      */
     create(container: HTMLElement): HTMLElement {
-        this.element = createEl('div', { cls: 'sn-status-message-display' });
+        this.element = createDiv({ cls: 'sn-status-message-display' });
         this.element.setAttribute('role', 'log');
         this.element.setAttribute('aria-label', 'Status message log');
         this.element.setAttribute('aria-live', 'polite');
 
         // 헤더
-        const header = createEl('div', { cls: 'sn-status-message-display__header' });
+        const header = createDiv({ cls: 'sn-status-message-display__header' });
 
         const title = createEl('h3', {
             text: this.getLocalizedText('Status messages'),
@@ -183,7 +183,7 @@ export class StatusMessageDisplay {
         header.appendChild(title);
 
         // 컨트롤
-        const controls = createEl('div', { cls: 'sn-status-message-display__controls' });
+        const controls = createDiv({ cls: 'sn-status-message-display__controls' });
 
         // 언어 선택
         const langSelect = createEl('select', { cls: 'sn-status-message-display__lang-select' });
@@ -191,10 +191,10 @@ export class StatusMessageDisplay {
 
         const languages = [{ value: 'en', label: 'English' }];
 
-        if (langSelect instanceof HTMLSelectElement) {
+        if (langSelect.instanceOf(HTMLSelectElement)) {
             languages.forEach((lang) => {
                 const option = createEl('option', { text: lang.label });
-                if (option instanceof HTMLOptionElement) {
+                if (option.instanceOf(HTMLOptionElement)) {
                     option.value = lang.value;
                     if (lang.value === this.currentLanguage) {
                         option.selected = true;
@@ -225,7 +225,7 @@ export class StatusMessageDisplay {
         this.element.appendChild(header);
 
         // 메시지 컨테이너
-        const messageContainer = createEl('div', { cls: 'sn-status-message-display__messages' });
+        const messageContainer = createDiv({ cls: 'sn-status-message-display__messages' });
         this.element.appendChild(messageContainer);
 
         container.appendChild(this.element);
@@ -263,13 +263,13 @@ export class StatusMessageDisplay {
         const messageContainer = this.element.querySelector('.sn-status-message-display__messages');
         if (!messageContainer) return;
 
-        const messageEl = createEl('div', {
+        const messageEl = createDiv({
             cls: `sn-status-message sn-status-message--${message.type}`,
         });
 
         // 타임스탬프
         if (this.showTimestamp && message.timestamp) {
-            const timestamp = createEl('span', {
+            const timestamp = createSpan({
                 cls: 'sn-status-message__timestamp',
                 text: this.formatTimestamp(message.timestamp),
             });
@@ -277,14 +277,14 @@ export class StatusMessageDisplay {
         }
 
         // 아이콘
-        const icon = createEl('span', {
+        const icon = createSpan({
             cls: 'sn-status-message__icon',
             text: this.getMessageIcon(message.type),
         });
         messageEl.appendChild(icon);
 
         // 메시지 텍스트
-        const text = createEl('span', {
+        const text = createSpan({
             cls: 'sn-status-message__text',
             text: MessageStore.getMessage(message.key, this.currentLanguage, message.params),
         });
@@ -298,7 +298,7 @@ export class StatusMessageDisplay {
         }
 
         // 애니메이션
-        requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
             messageEl.classList.add('sn-status-message--show');
         });
     }

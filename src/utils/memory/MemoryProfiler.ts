@@ -1,3 +1,4 @@
+import { isDevelopmentBuild } from '../buildEnvironment';
 /**
  * MemoryProfiler - Phase 4 Performance Optimization
  *
@@ -71,7 +72,7 @@ export class MemoryProfiler {
         this.isMonitoring = true;
         void this.profileLoop();
 
-        if (process.env.NODE_ENV === 'development') {
+        if (isDevelopmentBuild) {
             console.debug('Memory profiling started');
         }
     }
@@ -85,11 +86,11 @@ export class MemoryProfiler {
         this.isMonitoring = false;
 
         if (this.monitoringInterval) {
-            clearTimeout(this.monitoringInterval);
+            window.clearTimeout(this.monitoringInterval);
             this.monitoringInterval = undefined;
         }
 
-        if (process.env.NODE_ENV === 'development') {
+        if (isDevelopmentBuild) {
             console.debug('Memory profiling stopped');
         }
     }
@@ -330,9 +331,9 @@ export class MemoryProfiler {
      */
     private triggerCleanup(): void {
         // Chrome의 경우 gc() 함수 사용 가능 (--expose-gc 플래그 필요)
-        if (typeof (window as typeof window & { gc?: () => void }).gc === 'function') {
-            (window as typeof window & { gc?: () => void }).gc?.();
-            if (process.env.NODE_ENV === 'development') {
+        if (typeof window.gc === 'function') {
+            window.gc?.();
+            if (isDevelopmentBuild) {
                 console.debug('Garbage collection triggered');
             }
         }

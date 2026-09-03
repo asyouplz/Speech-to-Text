@@ -53,9 +53,9 @@ export class OpenAIRealtimeTranscriber implements RealtimeTranscriber {
                 reject(new Error('This live connection has already been used'));
                 return;
             }
-            const timer = setTimeout(() => this.fail(), 15000);
+            const timer = window.setTimeout(() => this.fail(), 15000);
             this.rejectConnect = (error) => {
-                clearTimeout(timer);
+                window.clearTimeout(timer);
                 this.rejectConnect = null;
                 reject(error);
             };
@@ -81,7 +81,7 @@ export class OpenAIRealtimeTranscriber implements RealtimeTranscriber {
                                 const ack = event.session as { type?: unknown } | undefined;
                                 if (ack?.type !== 'transcription') return;
                                 this.ready = true;
-                                clearTimeout(timer);
+                                window.clearTimeout(timer);
                                 this.rejectConnect = null;
                                 resolve();
                             } else if (event.type === 'error') {
@@ -162,12 +162,12 @@ export class OpenAIRealtimeTranscriber implements RealtimeTranscriber {
         this.commit();
         this.finishPromise = new Promise((resolve) => {
             const settle = (complete: boolean) => {
-                clearTimeout(timer);
+                window.clearTimeout(timer);
                 this.checkFinished = null;
                 this.close();
                 resolve({ text: this.assembler.text, complete });
             };
-            const timer = setTimeout(() => settle(false), 10000);
+            const timer = window.setTimeout(() => settle(false), 10000);
             this.checkFinished = () => {
                 if (this.closed || this.failed) settle(false);
                 else if (!this.commits && this.assembler.complete) settle(true);

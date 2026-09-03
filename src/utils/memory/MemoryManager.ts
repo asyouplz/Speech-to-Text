@@ -56,10 +56,9 @@ export class ResourceManager {
     ): void {
         target.addEventListener(type, listener, options);
 
-        if (!this.listeners.has(target)) {
-            this.listeners.set(target, new Map());
-        }
-        this.listeners.get(target)!.set(type, listener);
+        const listeners = this.listeners.get(target) ?? new Map<string, EventListener>();
+        this.listeners.set(target, listeners);
+        listeners.set(type, listener);
     }
 
     /**
@@ -102,13 +101,13 @@ export class ResourceManager {
 
         // 타이머 정리
         this.timers.forEach((timerId) => {
-            clearTimeout(timerId);
+            window.clearTimeout(timerId);
         });
         this.timers.clear();
 
         // 인터벌 정리
         this.intervals.forEach((intervalId) => {
-            clearInterval(intervalId);
+            window.clearInterval(intervalId);
         });
         this.intervals.clear();
 
@@ -244,7 +243,9 @@ export class MemoryMonitor {
     private threshold = 50 * 1024 * 1024; // 50MB
     private callbacks = new Set<(info: MemoryInfo) => void>();
 
-    private constructor() {}
+    private constructor() {
+        // Constructed only through getInstance().
+    }
 
     static getInstance(): MemoryMonitor {
         if (!this.instance) {
@@ -270,7 +271,7 @@ export class MemoryMonitor {
      */
     stop(): void {
         if (this.interval) {
-            clearInterval(this.interval);
+            window.clearInterval(this.interval);
             this.interval = null;
         }
         this.monitoring = false;
@@ -344,11 +345,8 @@ export class EventListenerManager {
         const entry: EventListenerEntry = { target, type, listener, options };
         const key = this.getKey(target, type);
 
-        if (!this.listeners.has(key)) {
-            this.listeners.set(key, new Set());
-        }
-
-        const entries = this.listeners.get(key)!;
+        const entries = this.listeners.get(key) ?? new Set<EventListenerEntry>();
+        this.listeners.set(key, entries);
 
         // 중복 방지
         const exists = Array.from(entries).some(

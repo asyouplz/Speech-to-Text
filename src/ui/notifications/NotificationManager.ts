@@ -37,45 +37,6 @@ type NotificationListener =
 const DOM_AVAILABLE = typeof document !== 'undefined';
 const AUDIO_AVAILABLE = typeof Audio !== 'undefined';
 
-type CreateElOptions = {
-    cls?: string | string[];
-    text?: string;
-    attr?: Record<string, string>;
-};
-
-const createEl = <K extends keyof HTMLElementTagNameMap>(
-    tag: K,
-    options: CreateElOptions = {}
-): HTMLElementTagNameMap[K] => {
-    const creator = (globalThis as { createEl?: unknown }).createEl;
-    if (typeof creator === 'function') {
-        return (creator as (tagName: K, options: CreateElOptions) => HTMLElementTagNameMap[K])(
-            tag,
-            options
-        );
-    }
-    if (!DOM_AVAILABLE) {
-        throw new Error('DOM is not available');
-    }
-    const el = document.createElement(tag);
-    if (options.cls) {
-        if (Array.isArray(options.cls)) {
-            el.classList.add(...options.cls);
-        } else {
-            el.className = options.cls;
-        }
-    }
-    if (options.text !== undefined) {
-        el.textContent = options.text;
-    }
-    if (options.attr) {
-        Object.entries(options.attr).forEach(([key, value]) => {
-            el.setAttribute(key, value);
-        });
-    }
-    return el;
-};
-
 class NoopChannel implements NotificationChannel {
     send(): Promise<void> {
         return Promise.resolve();
@@ -245,7 +206,7 @@ class ToastChannel implements NotificationChannel {
         if (!DOM_AVAILABLE) {
             return;
         }
-        const container = createEl('div', { cls: 'sn-toast-container' });
+        const container = createDiv({ cls: 'sn-toast-container' });
         container.setAttribute('aria-live', 'polite');
         container.setAttribute('aria-atomic', 'true');
         this.container = container;
@@ -276,7 +237,7 @@ class ToastChannel implements NotificationChannel {
         this.container.appendChild(toast);
 
         if (typeof requestAnimationFrame === 'function') {
-            requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
                 toast.classList.add('sn-toast--show');
             });
         } else {
@@ -285,7 +246,7 @@ class ToastChannel implements NotificationChannel {
 
         if (notification.duration !== 0) {
             const duration = notification.duration || 5000;
-            setTimeout(() => this.dismiss(id), duration);
+            window.setTimeout(() => this.dismiss(id), duration);
         }
         return Promise.resolve();
     }
@@ -295,13 +256,13 @@ class ToastChannel implements NotificationChannel {
             return null;
         }
 
-        const toast = createEl('div', { cls: `sn-toast sn-toast--${notification.type}` });
+        const toast = createDiv({ cls: `sn-toast sn-toast--${notification.type}` });
         toast.setAttribute('role', 'alert');
         toast.setAttribute('data-notification-id', id);
 
         // 아이콘
         if (notification.icon !== false) {
-            const icon = createEl('div', { cls: 'sn-toast__icon' });
+            const icon = createDiv({ cls: 'sn-toast__icon' });
             const iconSvg = this.getIcon(notification.type);
             if (iconSvg) {
                 icon.appendChild(iconSvg);
@@ -310,14 +271,14 @@ class ToastChannel implements NotificationChannel {
         }
 
         // 내용
-        const content = createEl('div', { cls: 'sn-toast__content' });
+        const content = createDiv({ cls: 'sn-toast__content' });
 
         if (notification.title) {
-            const title = createEl('div', { cls: 'sn-toast__title', text: notification.title });
+            const title = createDiv({ cls: 'sn-toast__title', text: notification.title });
             content.appendChild(title);
         }
 
-        const message = createEl('div', { cls: 'sn-toast__message', text: notification.message });
+        const message = createDiv({ cls: 'sn-toast__message', text: notification.message });
         content.appendChild(message);
 
         toast.appendChild(content);
@@ -332,7 +293,7 @@ class ToastChannel implements NotificationChannel {
 
         // 액션 버튼
         if (notification.actions && notification.actions.length > 0) {
-            const actions = createEl('div', { cls: 'sn-toast__actions' });
+            const actions = createDiv({ cls: 'sn-toast__actions' });
 
             notification.actions.forEach((action) => {
                 const btn = createEl('button', {
@@ -353,8 +314,8 @@ class ToastChannel implements NotificationChannel {
 
         // 진행률 바
         if (notification.progress !== undefined) {
-            const progressBar = createEl('div', { cls: 'sn-toast__progress' });
-            const fill = createEl('div', { cls: 'sn-toast__progress-fill' });
+            const progressBar = createDiv({ cls: 'sn-toast__progress' });
+            const fill = createDiv({ cls: 'sn-toast__progress-fill' });
             fill.setAttribute('style', `--sn-progress-width:${notification.progress}%`);
             progressBar.appendChild(fill);
             toast.appendChild(progressBar);
@@ -385,7 +346,7 @@ class ToastChannel implements NotificationChannel {
         toast.classList.remove('sn-toast--show');
         toast.classList.add('sn-toast--hide');
 
-        setTimeout(() => {
+        window.setTimeout(() => {
             toast.remove();
             this.notifications.delete(notificationId);
         }, 300);
@@ -428,16 +389,16 @@ class ModalChannel implements NotificationChannel {
     }
 
     private createModal(notification: NotificationOptions, id: string): HTMLElement {
-        const overlay = createEl('div', { cls: 'sn-modal-overlay' });
+        const overlay = createDiv({ cls: 'sn-modal-overlay' });
         overlay.setAttribute('data-notification-id', id);
 
-        const modal = createEl('div', { cls: `sn-modal sn-modal--${notification.type}` });
+        const modal = createDiv({ cls: `sn-modal sn-modal--${notification.type}` });
         modal.setAttribute('role', 'dialog');
         modal.setAttribute('aria-modal', 'true');
         modal.setAttribute('aria-labelledby', `modal-title-${id}`);
 
         // 헤더
-        const header = createEl('div', { cls: 'sn-modal__header' });
+        const header = createDiv({ cls: 'sn-modal__header' });
 
         const title = createEl('h2', {
             cls: 'sn-modal__title',
@@ -456,12 +417,12 @@ class ModalChannel implements NotificationChannel {
         modal.appendChild(header);
 
         // 내용
-        const content = createEl('div', { cls: 'sn-modal__content', text: notification.message });
+        const content = createDiv({ cls: 'sn-modal__content', text: notification.message });
         modal.appendChild(content);
 
         // 액션
         if (notification.actions && notification.actions.length > 0) {
-            const footer = createEl('div', { cls: 'sn-modal__footer' });
+            const footer = createDiv({ cls: 'sn-modal__footer' });
 
             notification.actions.forEach((action) => {
                 const btn = createEl('button', {
@@ -507,7 +468,7 @@ class ModalChannel implements NotificationChannel {
             modal.querySelectorAll(
                 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
             )
-        ).filter((el): el is HTMLElement => el instanceof HTMLElement);
+        ).filter((el): el is HTMLElement => el.instanceOf(HTMLElement));
 
         if (focusableElements.length === 0) {
             return;
@@ -537,7 +498,7 @@ class ModalChannel implements NotificationChannel {
 
         modal.classList.add('sn-modal-overlay--hide');
 
-        setTimeout(() => {
+        window.setTimeout(() => {
             modal.remove();
             this.activeModals.delete(notificationId);
         }, 300);
@@ -558,7 +519,7 @@ class ModalChannel implements NotificationChannel {
 class StatusBarChannel implements NotificationChannel {
     private statusBar: HTMLElement | null = null;
     private currentNotification: string | null = null;
-    private timeout: NodeJS.Timeout | null = null;
+    private timeout: number | null = null;
 
     constructor() {
         this.createStatusBar();
@@ -567,7 +528,7 @@ class StatusBarChannel implements NotificationChannel {
     private createStatusBar(): void {
         this.statusBar = document.querySelector('.sn-status-bar');
         if (!this.statusBar) {
-            const statusBar = createEl('div', { cls: 'sn-status-bar' });
+            const statusBar = createDiv({ cls: 'sn-status-bar' });
             document.body.appendChild(statusBar);
             this.statusBar = statusBar;
         }
@@ -586,12 +547,12 @@ class StatusBarChannel implements NotificationChannel {
         }
 
         if (this.timeout) {
-            clearTimeout(this.timeout);
+            window.clearTimeout(this.timeout);
         }
 
         if (notification.duration !== 0) {
             const duration = notification.duration || 3000;
-            this.timeout = setTimeout(() => this.dismiss(id), duration);
+            this.timeout = window.setTimeout(() => this.dismiss(id), duration);
         }
         return Promise.resolve();
     }
@@ -603,7 +564,7 @@ class StatusBarChannel implements NotificationChannel {
         this.currentNotification = null;
 
         if (this.timeout) {
-            clearTimeout(this.timeout);
+            window.clearTimeout(this.timeout);
             this.timeout = null;
         }
     }
@@ -701,7 +662,7 @@ class ProgressNotification implements IProgressNotification {
     private notificationId: string;
     private channel: NotificationChannel;
     private options: ProgressNotificationOptions;
-    private updateInterval: NodeJS.Timeout | null = null;
+    private updateInterval: number | null = null;
 
     constructor(
         notificationId: string,
@@ -726,7 +687,7 @@ class ProgressNotification implements IProgressNotification {
         await this.channel.send(this.options);
 
         if (this.options.updateInterval) {
-            this.updateInterval = setInterval(() => {
+            this.updateInterval = window.setInterval(() => {
                 this.render();
             }, this.options.updateInterval);
         }
@@ -747,10 +708,10 @@ class ProgressNotification implements IProgressNotification {
         this.render();
 
         if (this.updateInterval) {
-            clearInterval(this.updateInterval);
+            window.clearInterval(this.updateInterval);
         }
 
-        setTimeout(() => this.close(), 3000);
+        window.setTimeout(() => this.close(), 3000);
     }
 
     error(message: string): void {
@@ -759,13 +720,13 @@ class ProgressNotification implements IProgressNotification {
         this.render();
 
         if (this.updateInterval) {
-            clearInterval(this.updateInterval);
+            window.clearInterval(this.updateInterval);
         }
     }
 
     close(): void {
         if (this.updateInterval) {
-            clearInterval(this.updateInterval);
+            window.clearInterval(this.updateInterval);
         }
         this.channel.dismiss(this.notificationId);
     }
@@ -810,7 +771,7 @@ export class NotificationManager implements INotificationAPI {
     private eventManager: EventManager;
     private notificationCounter = 0;
     private recentMessages: Map<string, number> = new Map(); // 최근 메시지 추적
-    private recentMessageTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
+    private recentMessageTimers: Map<string, number> = new Map();
 
     constructor(config: NotificationConfig = {}) {
         this.config = {
@@ -859,14 +820,11 @@ export class NotificationManager implements INotificationAPI {
         // 중복 메시지 확인 (2초 이내 동일 메시지 방지)
         const messageKey = `${options.type}-${options.message}`;
         if (this.recentMessageTimers.has(messageKey)) {
-            if (process.env.DEBUG_NOTIFICATION) {
-                console.debug('Duplicate notification blocked', { messageKey });
-            }
             return ''; // 중복 메시지 무시
         }
         const now = Date.now();
         this.recentMessages.set(messageKey, now);
-        const timeout = setTimeout(() => {
+        const timeout = window.setTimeout(() => {
             this.recentMessages.delete(messageKey);
             const timer = this.recentMessageTimers.get(messageKey);
             if (timer) {

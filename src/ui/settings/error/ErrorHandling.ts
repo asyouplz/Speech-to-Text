@@ -83,7 +83,7 @@ function getRetryCallback(details: unknown): (() => void) | null {
     const retry = details.retry;
     return typeof retry === 'function'
         ? () => {
-              retry();
+              (retry as () => void)();
           }
         : null;
 }
@@ -146,7 +146,7 @@ export class ValidationErrorHandler implements ErrorHandler {
         const field = document.querySelector(`[data-field="${fieldName}"]`);
         if (field) {
             field.classList.add('error');
-            setTimeout(() => field.classList.remove('error'), 3000);
+            window.setTimeout(() => field.classList.remove('error'), 3000);
         }
     }
 }
@@ -173,7 +173,7 @@ export class NetworkErrorHandler implements ErrorHandler {
             new Notice(`Network error (retry ${this.retryCount}/${this.maxRetries})`);
 
             // 재시도 로직
-            setTimeout(() => {
+            window.setTimeout(() => {
                 // 재시도 콜백 실행
                 const retryCallback = getRetryCallback(error.details);
                 if (typeof retryCallback === 'function') {

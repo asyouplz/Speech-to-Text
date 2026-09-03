@@ -120,7 +120,7 @@ export class ErrorBoundary {
                     typeof reason === 'object' &&
                     reason !== null &&
                     'message' in reason &&
-                    typeof (reason as { message: unknown }).message === 'string'
+                    typeof reason.message === 'string'
                 ) {
                     errorMessage = (reason as { message: string }).message;
                 }
@@ -223,7 +223,7 @@ export class ErrorBoundary {
 
         if (count >= this.MAX_ERROR_COUNT) {
             // 일정 시간 후 카운트 리셋
-            setTimeout(() => {
+            window.setTimeout(() => {
                 this.errorCount.set(key, 0);
             }, this.ERROR_RESET_INTERVAL);
 

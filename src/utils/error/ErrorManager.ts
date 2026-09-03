@@ -1,3 +1,4 @@
+import { isDevelopmentBuild } from '../buildEnvironment';
 /**
  * 에러 처리 유틸리티
  * - 전역 에러 핸들러
@@ -209,7 +210,7 @@ export class GlobalErrorManager {
             if (strategy.canRecover(error)) {
                 try {
                     await strategy.recover(error);
-                    if (process.env.NODE_ENV === 'development') {
+                    if (isDevelopmentBuild) {
                         console.debug('Error recovered successfully:', error.type);
                     }
                     return;
@@ -318,18 +319,18 @@ export class ErrorManager {
 export class ConsoleErrorReporter implements ErrorReporter {
     report(error: ErrorInfo): void {
         const style = this.getConsoleStyle(error.severity);
-        if (process.env.NODE_ENV === 'development') {
+        if (isDevelopmentBuild) {
             console.debug(`%c[${error.severity}] ${error.type}`, style, error.message);
         }
 
         if (error.stack) {
-            if (process.env.NODE_ENV === 'development') {
+            if (isDevelopmentBuild) {
                 console.debug(error.stack);
             }
         }
 
         if (error.context) {
-            if (process.env.NODE_ENV === 'development') {
+            if (isDevelopmentBuild) {
                 console.debug('Context:', error.context);
             }
         }
@@ -409,7 +410,7 @@ export class ErrorBoundary {
         } = {}
     ) {
         this.element = element;
-        this.errorHandler = options.onError || (() => {});
+        this.errorHandler = options.onError || (() => undefined);
 
         if (options.fallback) {
             this.fallback = options.fallback();
@@ -473,7 +474,7 @@ export class ErrorBoundary {
         // 원본 콘텐츠 저장
         if (!this.originalContent) {
             const cloned = this.element.cloneNode(true);
-            if (cloned instanceof HTMLElement) {
+            if (cloned.instanceOf(HTMLElement)) {
                 this.originalContent = cloned;
             }
         }
@@ -629,7 +630,7 @@ export function retryOnError(maxAttempts = 3, delay = 1000) {
                     lastError = normalizeError(error);
 
                     if (attempt < maxAttempts) {
-                        await new Promise((resolve) => setTimeout(resolve, delay));
+                        await new Promise((resolve) => window.setTimeout(resolve, delay));
                     }
                 }
             }

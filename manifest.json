@@ -2,7 +2,7 @@
 	"id": "speech-to-text",
 	"name": "Speech to Text",
 	"version": "1.1.2",
-	"minAppVersion": "0.15.0",
+	"minAppVersion": "1.8.7",
 	"description": "Convert audio recordings to text using multiple AI providers (OpenAI Whisper, Deepgram).",
 	"author": "Taesun Lee",
 	"authorUrl": "https://github.com/asyouplz",

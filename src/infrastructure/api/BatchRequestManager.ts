@@ -162,7 +162,7 @@ export class BatchRequestManager {
     private processBatchImmediately(batchKey: string): void {
         const timer = this.timers.get(batchKey);
         if (timer) {
-            clearTimeout(timer);
+            window.clearTimeout(timer);
             this.timers.delete(batchKey);
         }
         void this.processBatch(batchKey);
@@ -353,7 +353,7 @@ export class BatchRequestManager {
     destroy(): void {
         // 타이머 정리
         for (const timer of this.timers.values()) {
-            clearTimeout(timer);
+            window.clearTimeout(timer);
         }
         this.timers.clear();
 

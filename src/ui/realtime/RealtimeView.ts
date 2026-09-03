@@ -24,7 +24,7 @@ export class RealtimeView extends ItemView {
         container.empty();
         container.createEl('h2', { text: 'Live transcription' });
         container.createEl('p', {
-            text: 'Microphone audio is sent to OpenAI while recording. Audio and transcripts are saved in Recordings/SpeechNote.',
+            text: 'Microphone audio is sent to OpenAI while recording. Audio and transcripts are saved in your vault.',
         });
         const controls = container.createDiv();
         const actions: [string, () => Promise<void>][] = [

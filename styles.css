@@ -2193,6 +2193,11 @@ textarea:focus-visible,
 .speechnote-live-transcript {
     white-space: pre-wrap;
 }
+
+/* Imperatively rendered settings sections inside the searchable settings API. */
+.sn-settings-section {
+    display: block;
+}
 /**
  * Provider Settings UI Styles
  * 

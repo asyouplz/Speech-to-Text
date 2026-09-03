@@ -235,7 +235,7 @@ export class FormatOptionsModal extends Modal {
                     .addDropdown((dropdown) => {
                         dropdown
                             .addOption('-', '- (dash)')
-                            .addOption('*', '*  (asterisk)')
+                            .addOption('*', '*  (Asterisk)')
                             .addOption('+', '+ (plus)')
                             .addOption('•', '• (bullet)')
                             .setValue(this.options.bulletChar || '-')
@@ -268,7 +268,7 @@ export class FormatOptionsModal extends Modal {
                     .setName('Language')
                     .setDesc('Programming language for syntax highlighting')
                     .addText((text) => {
-                        text.setPlaceholder('JavaScript, python, etc.')
+                        text.setPlaceholder('JavaScript, Python, etc.')
                             .setValue(this.options.codeLanguage || '')
                             .onChange((value) => {
                                 this.options.codeLanguage = value;
@@ -629,7 +629,7 @@ export class FormatOptionsModal extends Modal {
     private updateNewNoteOptions(): void {
         // Advanced 탭 재렌더링
         const advancedTab = document.querySelectorAll('.format-tab-content')[2];
-        if (advancedTab instanceof HTMLElement) {
+        if (advancedTab.instanceOf(HTMLElement)) {
             this.createAdvancedTab(advancedTab);
         }
     }

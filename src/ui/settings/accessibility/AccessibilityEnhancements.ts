@@ -131,7 +131,7 @@ export class ScreenReaderAnnouncer {
     createLiveRegion(): void {
         if (this.liveRegion) return;
 
-        this.liveRegion = createEl('div', {
+        this.liveRegion = createDiv({
             cls: 'sr-only',
             attr: {
                 'aria-live': 'polite',
@@ -183,11 +183,11 @@ export class ScreenReaderAnnouncer {
                 this.liveRegion.textContent = message;
 
                 // 스크린 리더가 읽을 시간 확보
-                await new Promise((resolve) => setTimeout(resolve, 100));
+                await new Promise((resolve) => window.setTimeout(resolve, 100));
 
                 // 메시지 초기화
                 this.liveRegion.textContent = '';
-                await new Promise((resolve) => setTimeout(resolve, 100));
+                await new Promise((resolve) => window.setTimeout(resolve, 100));
             }
         }
 
@@ -434,7 +434,7 @@ export class KeyboardNavigationManager {
         const skipLink = this.container.querySelector('.skip-link');
         if (skipLink) {
             skipLink.classList.add('visible');
-            setTimeout(() => skipLink.classList.remove('visible'), 3000);
+            window.setTimeout(() => skipLink.classList.remove('visible'), 3000);
         }
     }
 
@@ -574,7 +574,7 @@ export class AriaHelper {
             const errorId = `error-${Date.now()}`;
             element.setAttribute('aria-describedby', errorId);
 
-            const errorEl = createEl('div', {
+            const errorEl = createDiv({
                 cls: 'sr-only',
                 text: errorMessage,
                 attr: { id: errorId },
@@ -604,10 +604,10 @@ export class AriaHelper {
         element.setAttribute('aria-disabled', String(isDisabled));
 
         if (
-            element instanceof HTMLButtonElement ||
-            element instanceof HTMLInputElement ||
-            element instanceof HTMLSelectElement ||
-            element instanceof HTMLTextAreaElement
+            element.instanceOf(HTMLButtonElement) ||
+            element.instanceOf(HTMLInputElement) ||
+            element.instanceOf(HTMLSelectElement) ||
+            element.instanceOf(HTMLTextAreaElement)
         ) {
             element.disabled = isDisabled;
         }

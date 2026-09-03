@@ -10,7 +10,9 @@ export class DeepgramLogger {
     private enabled = true;
     private minLevel: LogLevel = LOG_LEVEL.INFO;
 
-    private constructor() {}
+    private constructor() {
+        // Constructed only through getInstance().
+    }
 
     public static getInstance(): DeepgramLogger {
         if (!DeepgramLogger.instance) {

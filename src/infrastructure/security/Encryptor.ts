@@ -308,7 +308,7 @@ export class SecureApiKeyManager {
                 console.warn(`API key retrieval attempt ${attempt + 1} failed:`, error);
                 // Wait before retry
                 if (attempt < MAX_RETRIES - 1) {
-                    await new Promise((resolve) => setTimeout(resolve, 100));
+                    await new Promise((resolve) => window.setTimeout(resolve, 100));
                 }
             }
         }

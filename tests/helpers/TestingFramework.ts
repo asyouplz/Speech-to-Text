@@ -1,5 +1,5 @@
 import { App, Plugin } from 'obsidian';
-import { DependencyContainer } from '../architecture/DependencyContainer';
+import { DependencyContainer } from '../../src/architecture/DependencyContainer';
 
 /**
  * 모의 객체 생성 유틸리티

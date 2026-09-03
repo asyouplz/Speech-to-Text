@@ -155,15 +155,15 @@ export class FileBrowser {
 
             // 폴더 헤더
             const folderHeader = listContainer.createDiv('sn-folder-header');
-            folderHeader.createEl('span', {
+            folderHeader.createSpan({
                 cls: 'sn-folder-icon',
                 text: '📁',
             });
-            folderHeader.createEl('span', {
+            folderHeader.createSpan({
                 cls: 'sn-folder-name',
                 text: folderPath || 'Root',
             });
-            folderHeader.createEl('span', {
+            folderHeader.createSpan({
                 cls: 'sn-folder-count',
                 text: `(${files.length})`,
             });
@@ -209,15 +209,15 @@ export class FileBrowser {
 
         // 파일 메타데이터
         const fileMeta = fileInfo.createDiv('sn-file-meta');
-        fileMeta.createEl('span', {
+        fileMeta.createSpan({
             cls: 'sn-file-size',
             text: this.formatFileSize(file.stat.size),
         });
-        fileMeta.createEl('span', {
+        fileMeta.createSpan({
             cls: 'sn-file-date',
             text: this.formatDate(file.stat.mtime),
         });
-        fileMeta.createEl('span', {
+        fileMeta.createSpan({
             cls: 'sn-file-ext',
             text: `.${file.extension}`,
         });

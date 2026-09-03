@@ -204,7 +204,7 @@ export function withTimeout<T>(
     return Promise.race([
         promise,
         new Promise<T>((_, reject) => {
-            setTimeout(() => {
+            window.setTimeout(() => {
                 reject(timeoutError || new Error(`Operation timed out after ${timeoutMs}ms`));
             }, timeoutMs);
         }),
@@ -223,7 +223,7 @@ export function debounceAsync<Args extends unknown[], R>(
 
     return (...args: Args): Promise<R> => {
         if (timeoutId) {
-            clearTimeout(timeoutId);
+            window.clearTimeout(timeoutId);
         }
 
         lastPromise = new Promise((resolve, reject) => {
@@ -256,7 +256,7 @@ export function throttleAsync<Args extends unknown[], R>(
                 lastResult = await fn(...args);
                 return lastResult;
             } finally {
-                setTimeout(() => {
+                window.setTimeout(() => {
                     inThrottle = false;
                 }, limit);
             }
@@ -356,7 +356,7 @@ export class PromisePipeline<T> {
  * Sleep 유틸리티
  */
 export function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
 /**

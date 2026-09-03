@@ -9,7 +9,7 @@ import { setIcon } from 'obsidian';
  * 지정된 시간만큼 대기
  */
 export function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
 /**
@@ -19,14 +19,14 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
     func: T,
     wait: number
 ): (...args: Parameters<T>) => void {
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let timeoutId: number | null = null;
 
     return function debounced(...args: Parameters<T>) {
         if (timeoutId !== null) {
-            clearTimeout(timeoutId);
+            window.clearTimeout(timeoutId);
         }
 
-        timeoutId = setTimeout(() => {
+        timeoutId = window.setTimeout(() => {
             func(...args);
             timeoutId = null;
         }, wait);
@@ -46,7 +46,7 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
         if (!inThrottle) {
             func(...args);
             inThrottle = true;
-            setTimeout(() => {
+            window.setTimeout(() => {
                 inThrottle = false;
             }, limit);
         }
@@ -245,7 +245,7 @@ export function withTimeout<T>(
     return Promise.race([
         promise,
         new Promise<never>((_, reject) => {
-            setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
+            window.setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
         }),
     ]);
 }
@@ -292,7 +292,7 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
  * Obsidian 아이콘 요소 생성
  */
 export function createIconElement(iconName: string, className?: string): HTMLSpanElement {
-    const iconEl = document.createElement('span');
+    const iconEl = createSpan();
     if (className) {
         iconEl.className = className;
     }

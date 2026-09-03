@@ -329,7 +329,7 @@ export class DragDropZone {
         );
         messageEl.setText(message);
 
-        setTimeout(() => {
+        window.setTimeout(() => {
             messageEl.remove();
         }, 3000);
     }

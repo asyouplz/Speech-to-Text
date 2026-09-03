@@ -1,3 +1,4 @@
+import { withSliderTooltip } from '../../settingDefinitions';
 import { Setting, Notice } from 'obsidian';
 import type SpeechToTextPlugin from '../../../../main';
 import { SelectionStrategy } from '../../../../infrastructure/api/providers/ITranscriber';
@@ -74,11 +75,11 @@ export class AdvancedSettingsPanel {
 
         // Warning notice
         const warningEl = headerEl.createDiv({ cls: 'advanced-warning' });
-        warningEl.createEl('span', {
+        warningEl.createSpan({
             cls: 'warning-icon',
             text: '⚠️',
         });
-        warningEl.createEl('span', {
+        warningEl.createSpan({
             cls: 'warning-text',
             text: 'These settings affect transcription behavior. Changes take effect immediately.',
         });
@@ -150,15 +151,13 @@ export class AdvancedSettingsPanel {
             .setName('Latency weight')
             .setDesc('Importance of response time (0-100)')
             .addSlider((slider) => {
-                slider
-                    .setLimits(0, 100, 5)
-                    .setValue(this.plugin.settings.latencyWeight || 40)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        this.plugin.settings.latencyWeight = value;
-                        await this.plugin.saveSettings();
-                        this.updateWeightDisplay(weightsEl);
-                    });
+                withSliderTooltip(
+                    slider.setLimits(0, 100, 5).setValue(this.plugin.settings.latencyWeight || 40)
+                ).onChange(async (value) => {
+                    this.plugin.settings.latencyWeight = value;
+                    await this.plugin.saveSettings();
+                    this.updateWeightDisplay(weightsEl);
+                });
             });
 
         // Success Rate Weight
@@ -166,15 +165,13 @@ export class AdvancedSettingsPanel {
             .setName('Success rate weight')
             .setDesc('Importance of reliability (0-100)')
             .addSlider((slider) => {
-                slider
-                    .setLimits(0, 100, 5)
-                    .setValue(this.plugin.settings.successWeight || 35)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        this.plugin.settings.successWeight = value;
-                        await this.plugin.saveSettings();
-                        this.updateWeightDisplay(weightsEl);
-                    });
+                withSliderTooltip(
+                    slider.setLimits(0, 100, 5).setValue(this.plugin.settings.successWeight || 35)
+                ).onChange(async (value) => {
+                    this.plugin.settings.successWeight = value;
+                    await this.plugin.saveSettings();
+                    this.updateWeightDisplay(weightsEl);
+                });
             });
 
         // Cost Weight
@@ -182,15 +179,13 @@ export class AdvancedSettingsPanel {
             .setName('Cost weight')
             .setDesc('Importance of cost efficiency (0-100)')
             .addSlider((slider) => {
-                slider
-                    .setLimits(0, 100, 5)
-                    .setValue(this.plugin.settings.costWeight || 25)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        this.plugin.settings.costWeight = value;
-                        await this.plugin.saveSettings();
-                        this.updateWeightDisplay(weightsEl);
-                    });
+                withSliderTooltip(
+                    slider.setLimits(0, 100, 5).setValue(this.plugin.settings.costWeight || 25)
+                ).onChange(async (value) => {
+                    this.plugin.settings.costWeight = value;
+                    await this.plugin.saveSettings();
+                    this.updateWeightDisplay(weightsEl);
+                });
             });
 
         // Weight visualization
@@ -234,14 +229,12 @@ export class AdvancedSettingsPanel {
             .setName('Budget alert')
             .setDesc('Alert when spending reaches this percentage')
             .addSlider((slider) => {
-                slider
-                    .setLimits(50, 100, 5)
-                    .setValue(this.plugin.settings.budgetAlert || 80)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        this.plugin.settings.budgetAlert = value;
-                        await this.plugin.saveSettings();
-                    });
+                withSliderTooltip(
+                    slider.setLimits(50, 100, 5).setValue(this.plugin.settings.budgetAlert || 80)
+                ).onChange(async (value) => {
+                    this.plugin.settings.budgetAlert = value;
+                    await this.plugin.saveSettings();
+                });
             });
 
         // Cost Optimization
@@ -272,14 +265,12 @@ export class AdvancedSettingsPanel {
             .setName('Minimum confidence')
             .setDesc('Reject transcriptions below this confidence level (0-100%)')
             .addSlider((slider) => {
-                slider
-                    .setLimits(0, 100, 5)
-                    .setValue(this.plugin.settings.minConfidence || 70)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        this.plugin.settings.minConfidence = value;
-                        await this.plugin.saveSettings();
-                    });
+                withSliderTooltip(
+                    slider.setLimits(0, 100, 5).setValue(this.plugin.settings.minConfidence || 70)
+                ).onChange(async (value) => {
+                    this.plugin.settings.minConfidence = value;
+                    await this.plugin.saveSettings();
+                });
             });
 
         // Language Detection
@@ -362,16 +353,14 @@ export class AdvancedSettingsPanel {
                 .setName('Traffic split')
                 .setDesc('Percentage of requests for provider a vs b')
                 .addSlider((slider) => {
-                    slider
-                        .setLimits(0, 100, 5)
-                        .setValue(this.abTestSplit)
-                        .setDynamicTooltip()
-                        .onChange(async (value) => {
-                            this.abTestSplit = value;
-                            this.plugin.settings.abTestSplit = value;
-                            await this.plugin.saveSettings();
-                            this.updateSplitDisplay(sectionEl);
-                        });
+                    withSliderTooltip(
+                        slider.setLimits(0, 100, 5).setValue(this.abTestSplit)
+                    ).onChange(async (value) => {
+                        this.abTestSplit = value;
+                        this.plugin.settings.abTestSplit = value;
+                        await this.plugin.saveSettings();
+                        this.updateSplitDisplay(sectionEl);
+                    });
                 });
 
             // Split visualization
@@ -441,7 +430,7 @@ export class AdvancedSettingsPanel {
             .setDesc('Maximum concurrent API requests')
             .addDropdown((dropdown) => {
                 dropdown
-                    .addOption('1', '1 (sequential)')
+                    .addOption('1', '1 (Sequential)')
                     .addOption('2', '2')
                     .addOption('3', '3')
                     .addOption('5', '5')
@@ -461,7 +450,7 @@ export class AdvancedSettingsPanel {
                     .addOption('0', 'No retries')
                     .addOption('1', '1')
                     .addOption('2', '2')
-                    .addOption('3', '3 (recommended)')
+                    .addOption('3', '3 (Recommended)')
                     .addOption('5', '5')
                     .setValue(this.plugin.settings.maxRetries?.toString() || '3')
                     .onChange(async (value) => {
@@ -521,7 +510,7 @@ export class AdvancedSettingsPanel {
             .addButton((button) => {
                 button
                     .setButtonText('Clear cache')
-                    .setWarning()
+                    .setClass('mod-warning')
                     .onClick(() => {
                         this.clearCache();
                     });
@@ -597,9 +586,9 @@ export class AdvancedSettingsPanel {
             .setDesc('Failures before opening circuit')
             .addDropdown((dropdown) => {
                 dropdown
-                    .addOption('3', '3 failures')
-                    .addOption('5', '5 failures')
-                    .addOption('10', '10 failures')
+                    .addOption('3', '3 Failures')
+                    .addOption('5', '5 Failures')
+                    .addOption('10', '10 Failures')
                     .setValue(this.circuitBreakerThreshold.toString())
                     .onChange(async (value) => {
                         this.circuitBreakerThreshold = parseInt(value);
@@ -703,7 +692,7 @@ export class AdvancedSettingsPanel {
             .addButton((button) => {
                 button
                     .setButtonText('Reset')
-                    .setWarning()
+                    .setClass('mod-warning')
                     .onClick(async () => {
                         if (await this.confirmReset()) {
                             await this.resetAdvancedSettings();
@@ -761,7 +750,7 @@ export class AdvancedSettingsPanel {
         const cost = this.plugin.settings.costWeight || 25;
         const total = latency + success + cost;
 
-        const weightBar = createEl('div', { cls: 'weight-bar' });
+        const weightBar = createDiv({ cls: 'weight-bar' });
 
         const segments = [
             { cls: 'latency', value: latency, label: `Latency ${latency}%` },
@@ -770,11 +759,11 @@ export class AdvancedSettingsPanel {
         ];
 
         segments.forEach((segmentInfo) => {
-            const segment = createEl('div', { cls: `weight-segment ${segmentInfo.cls}` });
+            const segment = createDiv({ cls: `weight-segment ${segmentInfo.cls}` });
             const percent = total === 0 ? 0 : (segmentInfo.value / total) * 100;
             segment.setAttribute('style', `--sn-width-pct:${percent}%`);
 
-            const label = createEl('span', { text: segmentInfo.label });
+            const label = createSpan({ text: segmentInfo.label });
             segment.appendChild(label);
 
             weightBar.appendChild(segment);
@@ -813,19 +802,19 @@ export class AdvancedSettingsPanel {
         const budget = this.plugin.settings.monthlyBudget || 50;
         const percentage = (currentSpending / budget) * 100;
 
-        const info = createEl('div', { cls: 'spending-info' });
+        const info = createDiv({ cls: 'spending-info' });
 
-        const label = createEl('span', { cls: 'spending-label', text: 'Current month:' });
+        const label = createSpan({ cls: 'spending-label', text: 'Current month:' });
         info.appendChild(label);
 
-        const value = createEl('span', {
+        const value = createSpan({
             cls: 'spending-value',
             text: `$${currentSpending.toFixed(2)} / $${budget.toFixed(2)}`,
         });
         info.appendChild(value);
 
-        const bar = createEl('div', { cls: 'spending-bar' });
-        const progress = createEl('div', {
+        const bar = createDiv({ cls: 'spending-bar' });
+        const progress = createDiv({
             cls: `spending-progress ${percentage > 80 ? 'warning' : ''}`.trim(),
         });
         progress.setAttribute('style', `--sn-width-pct:${Math.min(100, percentage)}%`);
@@ -853,19 +842,19 @@ export class AdvancedSettingsPanel {
             displayEl = containerEl.createDiv({ cls: 'sn-split-display' });
         }
 
-        const visualization = createEl('div', { cls: 'sn-split-visualization' });
+        const visualization = createDiv({ cls: 'sn-split-visualization' });
 
-        const splitBar = createEl('div', { cls: 'sn-split-bar' });
+        const splitBar = createDiv({ cls: 'sn-split-bar' });
 
-        const providerA = createEl('div', { cls: 'sn-split-a' });
+        const providerA = createDiv({ cls: 'sn-split-a' });
         providerA.setAttribute('style', `--sn-width-pct:${this.abTestSplit}%`);
-        const providerALabel = createEl('span', { text: `Provider A: ${this.abTestSplit}%` });
+        const providerALabel = createSpan({ text: `Provider A: ${this.abTestSplit}%` });
         providerA.appendChild(providerALabel);
 
         const providerBWidth = 100 - this.abTestSplit;
-        const providerB = createEl('div', { cls: 'sn-split-b' });
+        const providerB = createDiv({ cls: 'sn-split-b' });
         providerB.setAttribute('style', `--sn-width-pct:${providerBWidth}%`);
-        const providerBLabel = createEl('span', { text: `Provider B: ${providerBWidth}%` });
+        const providerBLabel = createSpan({ text: `Provider B: ${providerBWidth}%` });
         providerB.appendChild(providerBLabel);
 
         splitBar.appendChild(providerA);
@@ -912,14 +901,14 @@ export class AdvancedSettingsPanel {
      */
     private confirmReset(): Promise<boolean> {
         return new Promise((resolve) => {
-            const fragment = document.createDocumentFragment();
+            const fragment = createFragment();
 
-            const message = createEl('div', {
+            const message = createDiv({
                 text: 'Reset all advanced settings to defaults?',
             });
             fragment.appendChild(message);
 
-            const buttonRow = createEl('div', {
+            const buttonRow = createDiv({
                 cls: 'notice-action-row',
             });
 

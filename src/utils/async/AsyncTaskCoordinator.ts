@@ -161,7 +161,7 @@ export class CancellationToken {
         if (this.cancelled) {
             // Already cancelled, execute immediately
             callback();
-            return () => {};
+            return () => undefined;
         }
 
         this.callbacks.add(callback);
@@ -416,7 +416,8 @@ class PriorityQueue<T> {
         if (this.heap.length === 0) return undefined;
 
         const result = this.heap[0];
-        const end = this.heap.pop()!;
+        const end = this.heap.pop();
+        if (end === undefined) return result.item;
 
         if (this.heap.length > 0) {
             this.heap[0] = end;

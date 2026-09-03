@@ -24,7 +24,7 @@ type StatusBarItem = HTMLElement & {
  */
 export class StatusBarManager implements IDisposable {
     private statusBarItem: StatusBarItem | null = null;
-    private hideTimeout: NodeJS.Timeout | null = null;
+    private hideTimeout: number | null = null;
     private unsubscribe: (() => void) | null = null;
     private logger: Logger;
     private isDisposed = false;
@@ -152,7 +152,7 @@ export class StatusBarManager implements IDisposable {
         try {
             // 이전 타이머 취소
             if (this.hideTimeout) {
-                clearTimeout(this.hideTimeout);
+                window.clearTimeout(this.hideTimeout);
                 this.hideTimeout = null;
             }
 
@@ -180,7 +180,7 @@ export class StatusBarManager implements IDisposable {
 
             // 자동 숨김 설정
             if (config.hideAfter && config.hideAfter > 0) {
-                this.hideTimeout = setTimeout(() => {
+                this.hideTimeout = window.setTimeout(() => {
                     this.clearStatus();
                 }, config.hideAfter);
             }
@@ -256,7 +256,7 @@ export class StatusBarManager implements IDisposable {
 
         // 타이머 정리
         if (this.hideTimeout) {
-            clearTimeout(this.hideTimeout);
+            window.clearTimeout(this.hideTimeout);
             this.hideTimeout = null;
         }
 

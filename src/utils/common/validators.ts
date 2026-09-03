@@ -160,7 +160,7 @@ export function validateJson(jsonString: string): {
     error?: string;
 } {
     try {
-        const data = JSON.parse(jsonString);
+        const data: unknown = JSON.parse(jsonString);
         return { valid: true, data };
     } catch (error) {
         return {

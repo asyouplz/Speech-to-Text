@@ -214,11 +214,11 @@ export class ProgressIndicator {
             this.update(currentValue);
 
             if (progress < 1) {
-                requestAnimationFrame(animate);
+                window.requestAnimationFrame(animate);
             }
         };
 
-        requestAnimationFrame(animate);
+        window.requestAnimationFrame(animate);
     }
 
     /**
@@ -253,7 +253,7 @@ export class ProgressIndicator {
         }
 
         // 3초 후 자동 숨김
-        setTimeout(() => this.hide(), 3000);
+        window.setTimeout(() => this.hide(), 3000);
     }
 
     /**
@@ -276,7 +276,7 @@ export class ProgressIndicator {
         }
 
         // 2초 후 자동 숨김
-        setTimeout(() => this.hide(), 2000);
+        window.setTimeout(() => this.hide(), 2000);
     }
 
     /**
@@ -313,7 +313,7 @@ export class ProgressIndicator {
         if (!this.progressElement) return;
 
         this.progressElement.removeClass('sn-fade-hidden');
-        requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
             this.progressElement?.addClass('sn-fade-visible');
         });
     }
@@ -327,7 +327,7 @@ export class ProgressIndicator {
         this.progressElement.removeClass('sn-fade-visible');
         this.progressElement.addClass('sn-fade-hidden');
 
-        setTimeout(() => {
+        window.setTimeout(() => {
             if (callback) {
                 callback();
             }
@@ -338,7 +338,7 @@ export class ProgressIndicator {
      * 스피너 SVG
      */
     private getSpinnerElement(): HTMLElement {
-        const spinner = createEl('div', { cls: 'sn-progress-spinner__glyph' });
+        const spinner = createDiv({ cls: 'sn-progress-spinner__glyph' });
         spinner.setAttribute('aria-hidden', 'true');
         return spinner;
     }

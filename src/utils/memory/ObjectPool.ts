@@ -303,7 +303,7 @@ export class ObjectPool<T> {
      */
     destroy(): void {
         if (this.shrinkTimer) {
-            clearInterval(this.shrinkTimer);
+            window.clearInterval(this.shrinkTimer);
         }
 
         this.clear();

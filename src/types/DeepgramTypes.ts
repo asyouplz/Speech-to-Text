@@ -66,7 +66,7 @@ export interface ButtonComponent {
     setButtonText(text: string): ButtonComponent;
     setCta(): ButtonComponent;
     removeCta(): ButtonComponent;
-    setWarning(): ButtonComponent;
+    setClass(cls: string): ButtonComponent;
     setDisabled(disabled: boolean): ButtonComponent;
     onClick(callback: () => Promise<void>): ButtonComponent;
 }

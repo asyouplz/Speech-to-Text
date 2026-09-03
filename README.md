@@ -6,7 +6,7 @@
 
 [![Version](https://img.shields.io/github/v/release/asyouplz/Speech-to-Text)](https://github.com/asyouplz/Speech-to-Text/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Obsidian](https://img.shields.io/badge/obsidian-%3E%3D0.15.0-purple.svg)](https://obsidian.md)
+[![Obsidian](https://img.shields.io/badge/obsidian-%3E%3D1.8.7-purple.svg)](https://obsidian.md)
 [![OpenAI](https://img.shields.io/badge/OpenAI-Whisper%20API-orange.svg)](https://platform.openai.com/docs/guides/speech-to-text)
 [![Deepgram](https://img.shields.io/badge/Deepgram-Nova%203%20API-blue.svg)](https://developers.deepgram.com/)
 
@@ -330,7 +330,7 @@ Speaker 3: I think we should extend the deadline by one week.
 
 -   Node.js 16.0.0+
 -   npm 7.0.0+
--   Obsidian 0.15.0+
+-   Obsidian 1.8.7+ (settings search requires 1.13.0+)
 -   TypeScript 4.7.4+
 
 ### Development Setup
@@ -861,7 +861,7 @@ Speaker 3: 마감일을 일주일 연장해야 할 것 같습니다.
 
 -   Node.js 16.0.0+
 -   npm 7.0.0+
--   Obsidian 0.15.0+
+-   Obsidian 1.8.7+
 -   TypeScript 4.7.4+
 
 ### 개발 환경 설정

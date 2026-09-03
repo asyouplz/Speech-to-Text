@@ -39,7 +39,7 @@ export class ShortcutSettings {
             .addButton((button) =>
                 button
                     .setButtonText('Restore defaults')
-                    .setWarning()
+                    .setClass('mod-warning')
                     .onClick(() => {
                         new ConfirmationModal(
                             this.app,
@@ -131,7 +131,7 @@ export class ShortcutSettings {
                 setting.addButton((button) =>
                     button
                         .setButtonText('Remove')
-                        .setWarning()
+                        .setClass('mod-warning')
                         .onClick(async () => {
                             await this.removeShortcut(shortcut.id);
                             keyDisplay.textContent = 'Not set';
@@ -414,7 +414,7 @@ class ShortcutModal extends Modal {
 
         // 현재 단축키 표시
         const currentKeyEl = contentEl.createDiv({ cls: 'current-shortcut' });
-        currentKeyEl.createEl('span', { text: 'Current shortcut: ' });
+        currentKeyEl.createSpan({ text: 'Current shortcut: ' });
         const keyDisplay = currentKeyEl.createEl('kbd', {
             text: this.currentKey || 'Not set',
             cls: 'shortcut-display',
@@ -458,7 +458,7 @@ class ShortcutModal extends Modal {
 
         new ButtonComponent(buttonContainer)
             .setButtonText('Remove')
-            .setWarning()
+            .setClass('mod-warning')
             .onClick(() => {
                 this.onSubmit('');
                 this.close();
@@ -485,7 +485,7 @@ class ShortcutModal extends Modal {
         this.isRecording = true;
         this.recordedKeys.clear();
 
-        button.setButtonText('Recording... (press escape to cancel)');
+        button.setButtonText('Recording... (Press escape to cancel)');
         button.buttonEl.addClass('is-recording');
 
         // 키 이벤트 리스너
@@ -516,7 +516,7 @@ class ShortcutModal extends Modal {
                 display.textContent = this.currentKey;
 
                 // 녹음 종료
-                setTimeout(() => {
+                window.setTimeout(() => {
                     this.stopRecording(button);
                     document.removeEventListener('keydown', keydownHandler);
                 }, 100);

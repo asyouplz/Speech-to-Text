@@ -117,12 +117,12 @@ export class LocalRecorder {
     }
 
     private async waitForStop(): Promise<void> {
-        let timer: ReturnType<typeof setTimeout> | undefined;
+        let timer: number | undefined;
         try {
             await Promise.race([
                 this.stopped,
                 new Promise<void>((_, reject) => {
-                    timer = setTimeout(
+                    timer = window.setTimeout(
                         () =>
                             reject(
                                 new Error('Recording stop is still pending; retry saving shortly')
@@ -132,7 +132,7 @@ export class LocalRecorder {
                 }),
             ]);
         } finally {
-            if (timer) clearTimeout(timer);
+            if (timer) window.clearTimeout(timer);
         }
     }
 }

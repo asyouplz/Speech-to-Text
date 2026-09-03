@@ -348,7 +348,7 @@ export class DeepgramModelRegistry {
         Object.entries(config.models).forEach(([key, model]) => {
             try {
                 if (this.isValidModel(model)) {
-                    this.models.set(key, model as DeepgramModel);
+                    this.models.set(key, model);
                 } else {
                     this.logger.warn(`Invalid model structure for ${key}`);
                 }
@@ -372,7 +372,7 @@ export class DeepgramModelRegistry {
         Object.entries(config.features).forEach(([key, feature]) => {
             try {
                 if (this.isValidFeature(feature)) {
-                    this.features.set(key, feature as DeepgramFeature);
+                    this.features.set(key, feature);
                 } else {
                     this.logger.warn(`Invalid feature structure for ${key}`);
                 }
@@ -390,10 +390,10 @@ export class DeepgramModelRegistry {
     private loadFallbackConfiguration(): void {
         try {
             Object.entries(DEFAULT_CONFIG.models).forEach(([key, model]) => {
-                this.models.set(key, model as DeepgramModel);
+                this.models.set(key, model);
             });
             Object.entries(DEFAULT_CONFIG.features).forEach(([key, feature]) => {
-                this.features.set(key, feature as DeepgramFeature);
+                this.features.set(key, feature);
             });
             this.logger.info('Fallback configuration loaded');
         } catch (error) {

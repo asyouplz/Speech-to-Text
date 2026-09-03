@@ -1,3 +1,6 @@
+global.__SPEECHNOTE_TEST__ = true;
+if (typeof window === 'undefined') global.window = global;
+
 /**
  * 테스트 환경 설정 및 공통 Mock 설정
  */

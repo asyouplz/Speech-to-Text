@@ -8,6 +8,9 @@
  */
 
 import '@testing-library/jest-dom';
+import { installObsidianDom } from './obsidianDom';
+
+installObsidianDom(window);
 import { requestUrl } from 'obsidian';
 import { TextEncoder, TextDecoder } from 'util';
 
@@ -15,6 +18,7 @@ import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as any;
 
+Object.assign(global, { __SPEECHNOTE_TEST__: true });
 jest.setTimeout(30000);
 
 if (typeof HTMLMediaElement !== 'undefined') {
