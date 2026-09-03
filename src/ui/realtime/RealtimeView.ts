@@ -42,8 +42,7 @@ export class RealtimeView extends ItemView {
         const status = container.createEl('p');
         status.setAttribute('role', 'status');
         const warning = container.createEl('p', { cls: 'mod-warning' });
-        const transcript = container.createEl('pre');
-        transcript.style.whiteSpace = 'pre-wrap';
+        const transcript = container.createEl('pre', { cls: 'speechnote-live-transcript' });
         this.unsubscribe = this.controller.subscribe(() => {
             const snapshot = this.controller.snapshot;
             status.setText(snapshot?.status ?? 'Ready');
