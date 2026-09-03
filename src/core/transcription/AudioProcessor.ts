@@ -1,4 +1,5 @@
 import { TFile, Vault } from 'obsidian';
+import { FILE_TRANSCRIPTION_EXTENSIONS } from '../../utils/audioFormats';
 import type {
     IAudioProcessor,
     ValidationResult,
@@ -9,7 +10,7 @@ import type {
 
 export class AudioProcessor implements IAudioProcessor {
     private readonly DEFAULT_MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB default
-    private readonly SUPPORTED_FORMATS = ['.m4a', '.mp3', '.wav', '.mp4'];
+    private readonly SUPPORTED_FORMATS = FILE_TRANSCRIPTION_EXTENSIONS.map((ext) => `.${ext}`);
     private maxFileSize: number = this.DEFAULT_MAX_FILE_SIZE;
 
     constructor(private vault: Vault, private logger: ILogger) {}

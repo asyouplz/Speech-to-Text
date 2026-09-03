@@ -161,6 +161,7 @@ function isSnapshot(value: unknown): value is SessionSnapshot {
         typeof v.warning === 'string' &&
         typeof v.finalText === 'string' &&
         typeof v.audioSaved === 'boolean' &&
+        (v.speakerOutputPending === undefined || typeof v.speakerOutputPending === 'boolean') &&
         ['none', 'running', 'complete', 'partial', 'failed'].includes(String(v.postProcess))
     );
 }

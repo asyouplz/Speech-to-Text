@@ -198,6 +198,28 @@ describe('API Integration Tests', () => {
     });
 
     describe('Full Transcription Pipeline Integration', () => {
+        it('accepts a saved WebM recording through the existing file-transcription pipeline', async () => {
+            const buffer = new Uint8Array(2048);
+            buffer.set([0x1a, 0x45, 0xdf, 0xa3]);
+            const file = createMockAudioFile({
+                name: 'recording.webm',
+                extension: 'webm',
+                size: buffer.byteLength,
+            });
+            (mockVault.readBinary as jest.Mock).mockResolvedValue(buffer.buffer);
+            (requestUrl as jest.Mock).mockResolvedValue({
+                status: 200,
+                json: createMockWhisperResponse({
+                    text: '저장한 녹음의 전사 결과입니다.',
+                    language: 'ko',
+                }),
+            });
+            const result = await transcriptionService.transcribe(file);
+            expect(result.text).toContain('저장한 녹음');
+            expect(mockVault.readBinary).toHaveBeenCalledWith(file);
+            expect(requestUrl).toHaveBeenCalledTimes(1);
+        });
+
         it('should complete full transcription workflow', async () => {
             const file = createMockAudioFile({
                 name: 'speech.mp3',

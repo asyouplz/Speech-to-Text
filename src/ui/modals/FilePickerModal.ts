@@ -1,5 +1,6 @@
 import { App, Modal, TFile, Setting, Notice } from 'obsidian';
 import { FileValidator } from '../components/FileValidator';
+import { FILE_TRANSCRIPTION_EXTENSIONS } from '../../utils/audioFormats';
 import { FileBrowser } from '../components/FileBrowser';
 import { DragDropZone } from '../components/DragDropZone';
 import { RecentFiles } from '../components/RecentFiles';
@@ -500,7 +501,7 @@ export class FilePickerModal extends Modal {
     private mergeOptions(options: FilePickerOptions): Required<FilePickerOptions> {
         return {
             title: options.title || 'Select audio files',
-            accept: options.accept || ['m4a', 'mp3', 'wav', 'mp4'],
+            accept: options.accept || [...FILE_TRANSCRIPTION_EXTENSIONS],
             maxFileSize: options.maxFileSize || 25 * 1024 * 1024, // 25MB
             multiple: options.multiple ?? false,
             showRecentFiles: options.showRecentFiles ?? true,

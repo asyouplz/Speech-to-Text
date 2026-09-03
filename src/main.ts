@@ -25,6 +25,7 @@ import type { IWhisperService } from './types';
 import { isPlainRecord } from './types/guards';
 import { RealtimeWorkspace } from './application/RealtimeWorkspace';
 import { normalizeRealtimeSettings } from './core/realtime/types';
+import { FILE_TRANSCRIPTION_EXTENSIONS } from './utils/audioFormats';
 // import { SimpleSettingsTab } from './ui/settings/SimpleSettingsTab';
 
 export default class SpeechToTextPlugin extends Plugin {
@@ -560,13 +561,7 @@ export default class SpeechToTextPlugin extends Plugin {
         // Get all audio files in vault
         const audioFiles = this.app.vault
             .getFiles()
-            .filter(
-                (file) =>
-                    file.extension === 'm4a' ||
-                    file.extension === 'mp3' ||
-                    file.extension === 'wav' ||
-                    file.extension === 'mp4'
-            );
+            .filter((file) => FILE_TRANSCRIPTION_EXTENSIONS.includes(file.extension.toLowerCase()));
 
         if (audioFiles.length === 0) {
             new Notice('No audio files found in vault');

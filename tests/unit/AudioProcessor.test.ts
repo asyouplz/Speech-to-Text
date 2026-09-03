@@ -35,7 +35,7 @@ describe('AudioProcessor', () => {
 
     describe('validate', () => {
         it('should validate supported audio formats', async () => {
-            const validFormats = ['mp3', 'm4a', 'wav', 'mp4'];
+            const validFormats = ['mp3', 'm4a', 'wav', 'mp4', 'webm'];
 
             for (const format of validFormats) {
                 const file = createMockAudioFile({
@@ -80,6 +80,17 @@ describe('AudioProcessor', () => {
             expect(result.errors![0]).toContain('exceeds maximum allowed size');
         });
 
+        it('keeps the provider size limit for WebM recordings', async () => {
+            const file = createMockAudioFile({
+                name: 'recording.webm',
+                extension: 'webm',
+                size: 26 * 1024 * 1024,
+            });
+            expect((await audioProcessor.validate(file)).valid).toBe(false);
+            audioProcessor.setProviderCapabilities({ maxFileSize: 64 * 1024 * 1024 });
+            expect((await audioProcessor.validate(file)).valid).toBe(true);
+        });
+
         it('should add warning for large files', async () => {
             const file = createMockAudioFile({
                 size: 15 * 1024 * 1024, // 15MB
@@ -111,7 +122,7 @@ describe('AudioProcessor', () => {
         });
 
         it('should handle case-insensitive extensions', async () => {
-            const mixedCaseFormats = ['MP3', 'M4A', 'WaV', 'Mp4'];
+            const mixedCaseFormats = ['MP3', 'M4A', 'WaV', 'Mp4', 'WebM'];
 
             for (const format of mixedCaseFormats) {
                 const file = createMockAudioFile({
