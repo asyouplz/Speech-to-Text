@@ -158,6 +158,7 @@ docs/
 requirment*.md
 
 # Local review notes
+docs/reviews/
 REVIEW_NOTES_PR8004.md
 docs/BRANCH_PROTECTION.md
 docs/LINT_RULES.md

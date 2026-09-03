@@ -4,7 +4,7 @@
 
 <div align="center">
 
-[![Version](https://img.shields.io/badge/version-3.0.14-blue.svg)](https://github.com/asyouplz/SpeechNote/releases)
+[![Version](https://img.shields.io/github/v/release/asyouplz/Speech-to-Text)](https://github.com/asyouplz/Speech-to-Text/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Obsidian](https://img.shields.io/badge/obsidian-%3E%3D0.15.0-purple.svg)](https://obsidian.md)
 [![OpenAI](https://img.shields.io/badge/OpenAI-Whisper%20API-orange.svg)](https://platform.openai.com/docs/guides/speech-to-text)
@@ -67,7 +67,7 @@ Convert audio recordings to text directly in Obsidian using multiple AI provider
 
 #### From Releases
 
-1. Download the latest release from [Releases](https://github.com/asyouplz/SpeechNote/releases)
+1. Download the latest release from [Releases](https://github.com/asyouplz/Speech-to-Text/releases)
 2. Extract files to your vault's `.obsidian/plugins/obsidian-speech-to-text/` folder
 3. Restart Obsidian
 4. Enable "Speech to Text" in Community Plugins settings
@@ -598,7 +598,7 @@ If this project helped you:
 
 #### 릴리즈에서 설치
 
-1. [Releases](https://github.com/asyouplz/SpeechNote/releases)에서 최신 릴리즈 다운로드
+1. [Releases](https://github.com/asyouplz/Speech-to-Text/releases)에서 최신 릴리즈 다운로드
 2. vault의 `.obsidian/plugins/obsidian-speech-to-text/` 폴더에 파일 압축 해제
 3. Obsidian 재시작
 4. 커뮤니티 플러그인 설정에서 "Speech to Text" 활성화
