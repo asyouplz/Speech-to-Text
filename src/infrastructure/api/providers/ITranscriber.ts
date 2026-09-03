@@ -41,6 +41,8 @@ export interface WhisperSpecificOptions {
 
 // Deepgram 전용 옵션
 export interface DeepgramSpecificOptions {
+    /** Explicit current model; when omitted, existing tier compatibility mapping is retained. */
+    model?: 'nova-3' | 'nova-2';
     tier?: 'nova-3' | 'nova-2' | 'enhanced' | 'base' | 'nova';
     punctuate?: boolean;
     smartFormat?: boolean;

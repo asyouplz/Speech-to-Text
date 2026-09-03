@@ -23,6 +23,8 @@ import { SettingsTab } from './ui/settings/SettingsTab';
 import { assertTFile } from './utils/fs/typeGuards';
 import type { IWhisperService } from './types';
 import { isPlainRecord } from './types/guards';
+import { RealtimeWorkspace } from './application/RealtimeWorkspace';
+import { normalizeRealtimeSettings } from './core/realtime/types';
 // import { SimpleSettingsTab } from './ui/settings/SimpleSettingsTab';
 
 export default class SpeechToTextPlugin extends Plugin {
@@ -36,6 +38,7 @@ export default class SpeechToTextPlugin extends Plugin {
     private textInsertionHandler!: TextInsertionHandler;
     private logger!: Logger;
     private errorHandler!: ErrorHandler;
+    private realtimeWorkspace?: RealtimeWorkspace;
 
     async onload() {
         this.logger = new Logger('SpeechToText');
@@ -71,6 +74,7 @@ export default class SpeechToTextPlugin extends Plugin {
     }
 
     onunload() {
+        this.realtimeWorkspace?.dispose();
         this.logger?.info('Unloading Speech-to-Text plugin');
 
         // Clean up resources
@@ -152,6 +156,7 @@ export default class SpeechToTextPlugin extends Plugin {
 
         // Initialize transcription service with appropriate provider
         this.initializeTranscriptionService();
+        this.realtimeWorkspace = new RealtimeWorkspace(this, () => this.settings);
     }
 
     private initializeTranscriberFactory() {
@@ -746,6 +751,7 @@ export default class SpeechToTextPlugin extends Plugin {
     async loadSettings() {
         const loadedData = (await this.loadData()) as Record<string, unknown> | null;
         this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData ?? {});
+        this.settings.realtime = normalizeRealtimeSettings(loadedData?.realtime);
     }
 
     async saveSettings() {

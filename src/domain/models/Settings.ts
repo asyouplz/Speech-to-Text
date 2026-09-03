@@ -1,7 +1,9 @@
 import { SelectionStrategy } from '../../infrastructure/api/providers/ITranscriber';
 import type { DeepgramFeatures } from '../../types/DeepgramTypes';
+import { DEFAULT_REALTIME_SETTINGS, RealtimeSettings } from '../../core/realtime/types';
 
 export interface SpeechToTextSettings {
+    realtime?: RealtimeSettings;
     apiKey: string;
     apiEndpoint?: string; // Added for custom API endpoint support
     model: WhisperModel | CustomWhisperModel; // Allow string for compatibility
@@ -139,6 +141,7 @@ export type InsertPosition = 'cursor' | 'end' | 'beginning';
 export type TimestampFormat = 'none' | 'inline' | 'sidebar';
 
 export const DEFAULT_SETTINGS: SpeechToTextSettings = {
+    realtime: { ...DEFAULT_REALTIME_SETTINGS },
     apiKey: '',
     model: 'whisper-1',
     language: 'auto',

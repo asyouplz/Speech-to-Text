@@ -443,14 +443,32 @@ export class DeepgramService {
     async transcribe(
         audio: ArrayBuffer,
         options?: DeepgramSpecificOptions,
-        language?: string
+        language?: string,
+        signal?: AbortSignal
     ): Promise<DeepgramAPIResponse> {
         // Rate limiting
         await this.rateLimiter.acquire();
 
         // Circuit Breaker와 재시도 전략을 통한 실행
         return this.circuitBreaker.execute(() =>
-            this.retryStrategy.execute(() => this.performTranscription(audio, options, language))
+            this.retryStrategy.execute(async () => {
+                if (signal?.aborted)
+                    throw new TranscriptionError(
+                        'Transcription cancelled',
+                        'CANCELLED',
+                        'deepgram',
+                        false
+                    );
+                const result = await this.performTranscription(audio, options, language);
+                if (signal?.aborted)
+                    throw new TranscriptionError(
+                        'Transcription cancelled',
+                        'CANCELLED',
+                        'deepgram',
+                        false
+                    );
+                return result;
+            })
         );
     }
 
@@ -686,7 +704,9 @@ export class DeepgramService {
         const userTier = (options?.tier || '').toString().toLowerCase();
         const isNovaFamily = userTier.includes('nova');
 
-        if (isNovaFamily || (language && language.startsWith('ko'))) {
+        if (options?.model) {
+            params.append('model', options.model);
+        } else if (isNovaFamily || (language && language.startsWith('ko'))) {
             // Per Deepgram guidance for Korean + Nova tier
             params.append('model', '2-general');
             params.append('tier', 'nova');
