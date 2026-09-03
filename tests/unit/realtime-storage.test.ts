@@ -141,6 +141,31 @@ describe('durable recording storage', () => {
         expect((await restored.load())?.text).toBe('first');
     });
 
+    test('restores pending speaker output and ignores a malformed pending flag', async () => {
+        const { store, metadata, adapter, files } = storageFixture();
+        await store.create();
+        await store.save({
+            ...state,
+            finalText: 'retained speakers',
+            postProcess: 'complete',
+            speakerOutputPending: true,
+        });
+        files.set(
+            `${store.folder}/state-0.json`,
+            JSON.stringify({
+                ...state,
+                revision: 2,
+                speakerOutputPending: 'false',
+            })
+        );
+        const restored = new RealtimeSessionStore(adapter, metadata);
+        expect(await restored.load()).toMatchObject({
+            revision: 1,
+            finalText: 'retained speakers',
+            speakerOutputPending: true,
+        });
+    });
+
     test('ignores a session descriptor that points outside its own folder', async () => {
         const { store, adapter, files, metadata } = storageFixture();
         await store.create();

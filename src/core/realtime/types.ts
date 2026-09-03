@@ -47,6 +47,8 @@ export interface SessionSnapshot {
     warning: string;
     finalText: string;
     audioSaved: boolean;
+    /** A provider result exists but its note/state output still needs to be saved. */
+    speakerOutputPending?: boolean;
     postProcess: 'none' | 'running' | 'complete' | 'partial' | 'failed';
 }
 

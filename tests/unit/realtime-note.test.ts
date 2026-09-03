@@ -36,7 +36,12 @@ test('note revisions retain user edits, preserve the original transcript, and av
     text += '\nUser notes added afterwards';
     const final = { ...snapshot, finalText: 'Speaker 1: hello', postProcess: 'complete' as const };
     await writer.write(final);
-    await writer.write(final);
+    await writer.write({ ...final, speakerOutputPending: true, status: 'Save needs attention' });
+    await writer.write({
+        ...final,
+        speakerOutputPending: false,
+        status: 'Speaker transcript saved',
+    });
     expect(text).toContain('line one\nline two');
     expect(text).toContain('User notes added afterwards');
     expect(text.match(/Speaker 1: hello/g)).toHaveLength(1);

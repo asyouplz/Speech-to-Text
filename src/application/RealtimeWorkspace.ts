@@ -82,7 +82,10 @@ export class RealtimeWorkspace {
         if (this.disposed || Platform.isMobile) return;
         if (this.busy || this.run?.isActive || this.stopping)
             throw new Error('Finish the current session first');
-        if (this.run?.hasRecording && this.run.snapshot.status === 'Save needs attention') {
+        if (
+            this.snapshot?.speakerOutputPending ||
+            (this.run?.hasRecording && this.run.snapshot.status === 'Save needs attention')
+        ) {
             throw new Error('Use Retry saving before starting another recording');
         }
         const settings = this.getSettings();
@@ -177,10 +180,21 @@ export class RealtimeWorkspace {
     }
 
     async retrySave(): Promise<void> {
+        if (this.disposed) throw new Error('Live transcription is no longer available');
         if (this.busy || this.stopping) throw new Error('Wait for the current operation to finish');
+        if (this.selected && this.snapshot?.speakerOutputPending && this.snapshot.audioSaved) {
+            this.busy = true;
+            try {
+                await this.saveSpeakerOutput(this.selected, this.snapshot);
+            } finally {
+                this.busy = false;
+            }
+            return;
+        }
         if (!this.run) {
             if (!this.selected) throw new Error('Select a saved recording with Recover recording');
-            if (this.snapshot?.status === 'Save needs attention') await this.recover(this.selected);
+            if (this.snapshot?.status === 'Save needs attention')
+                await this.restoreSession(this.selected);
             return;
         }
         this.busy = true;
@@ -202,6 +216,10 @@ export class RealtimeWorkspace {
 
     async recover(store: RealtimeSessionStore): Promise<void> {
         this.ensureRecoveryAvailable();
+        await this.restoreSession(store);
+    }
+
+    private async restoreSession(store: RealtimeSessionStore): Promise<void> {
         this.busy = true;
         let snapshot: LiveSnapshot | null = null;
         try {
@@ -222,6 +240,7 @@ export class RealtimeWorkspace {
             snapshot.status = 'Recovering saved recording';
             this.publish(snapshot);
             await this.open();
+            snapshot.audioSaved = false;
             await store.finalizeAudio();
             snapshot.audioSaved = true;
             if (!saved?.audioSaved) {
@@ -230,7 +249,13 @@ export class RealtimeWorkspace {
                     'Recovered persisted chunks. Audio still buffered when the app closed may be missing.';
             }
             if (snapshot.postProcess === 'running') snapshot.postProcess = 'failed';
-            const recovered = { ...snapshot, status: 'Recovered saved recording' };
+            const recovered = {
+                ...snapshot,
+                speakerOutputPending: false,
+                status: snapshot.speakerOutputPending
+                    ? this.getSpeakerSavedStatus(snapshot)
+                    : 'Recovered saved recording',
+            };
             await new SessionNoteWriter(this.plugin.app.vault, store).write(recovered);
             await store.save(recovered);
             Object.assign(snapshot, recovered);
@@ -253,7 +278,10 @@ export class RealtimeWorkspace {
         if (this.disposed) throw new Error('Live transcription is no longer available');
         if (this.busy || this.run?.isActive || this.stopping)
             throw new Error('Finish the current session first');
-        if (this.run?.hasRecording && this.run.snapshot.status === 'Save needs attention')
+        if (
+            this.snapshot?.speakerOutputPending ||
+            (this.run?.hasRecording && this.run.snapshot.status === 'Save needs attention')
+        )
             throw new Error('Use Retry saving to preserve the current session first');
     }
 
@@ -277,6 +305,10 @@ export class RealtimeWorkspace {
         try {
             snapshot = await store.load();
             if (!snapshot?.audioSaved) throw new Error('Recover or save the recording first');
+            if (snapshot.speakerOutputPending) {
+                this.publish({ ...snapshot, status: 'Save needs attention' });
+                throw new Error('Use Retry saving to preserve the received speaker transcript');
+            }
             if (snapshot.postProcess === 'complete') return;
             snapshot.postProcess = 'running';
             snapshot.status = 'Transcribing saved audio with Deepgram';
@@ -302,19 +334,14 @@ export class RealtimeWorkspace {
                 );
             snapshot.postProcess =
                 result.metadata?.isPartial || !hasSpeakers ? 'partial' : 'complete';
-            snapshot.status =
-                snapshot.postProcess === 'complete'
-                    ? 'Speaker transcript saved'
-                    : 'Speaker transcript saved with incomplete speaker information';
-            await store.save(snapshot);
-            await new SessionNoteWriter(this.plugin.app.vault, store).write(snapshot);
-            this.publish(snapshot);
+            snapshot.speakerOutputPending = true;
+            await this.saveSpeakerOutput(store, snapshot);
         } catch (error) {
-            if (snapshot) {
+            if (snapshot && !snapshot.speakerOutputPending) {
                 snapshot.postProcess = 'failed';
                 snapshot.status =
                     'Speaker transcription needs attention; original recording retained';
-                await store.save(snapshot);
+                await store.save(snapshot).catch(() => undefined);
                 this.publish(snapshot);
             }
             throw error;
@@ -322,6 +349,45 @@ export class RealtimeWorkspace {
             this.processor = null;
             this.busy = false;
         }
+    }
+
+    private async saveSpeakerOutput(
+        store: RealtimeSessionStore,
+        snapshot: LiveSnapshot
+    ): Promise<void> {
+        const pending = {
+            ...snapshot,
+            speakerOutputPending: true,
+            status: 'Saving speaker transcript',
+        };
+        this.publish(pending);
+        try {
+            // Preserve the received result before touching the note, including across restart.
+            await store.save(pending);
+            const saved = {
+                ...pending,
+                speakerOutputPending: false,
+                status: this.getSpeakerSavedStatus(pending),
+            };
+            await new SessionNoteWriter(this.plugin.app.vault, store).write(saved);
+            await store.save(saved);
+            this.publish(saved);
+        } catch (error) {
+            pending.status = 'Save needs attention';
+            // Keep the in-memory result even when both checkpoint attempts fail.
+            await store.save(pending).catch(() => undefined);
+            this.publish(pending);
+            throw new Error(
+                'Speaker transcript could not be saved. Keep this session open and use Retry saving.',
+                { cause: error }
+            );
+        }
+    }
+
+    private getSpeakerSavedStatus(snapshot: LiveSnapshot): string {
+        return snapshot.postProcess === 'complete'
+            ? 'Speaker transcript saved'
+            : 'Speaker transcript saved with incomplete speaker information';
     }
 
     async openNote(): Promise<void> {

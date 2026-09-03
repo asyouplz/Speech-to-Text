@@ -8,6 +8,7 @@ import { EventHandlers } from '../components/EventHandlers';
 import { ILogger } from '../../infrastructure/logging/Logger';
 import { EventListenerManager } from '../../utils/memory/MemoryManager';
 import { debounceAsync } from '../../utils/async/AsyncManager';
+import { FILE_TRANSCRIPTION_EXTENSIONS } from '../../utils/audioFormats';
 
 export interface FilePickerOptions {
     title?: string;
@@ -555,7 +556,7 @@ export class FilePickerModalRefactored extends Modal {
     private mergeOptions(options: FilePickerOptions): Required<FilePickerOptions> {
         return {
             title: options.title || 'Select audio files',
-            accept: options.accept || ['m4a', 'mp3', 'wav', 'mp4'],
+            accept: options.accept || [...FILE_TRANSCRIPTION_EXTENSIONS],
             maxFileSize: options.maxFileSize || 25 * 1024 * 1024, // 25MB
             multiple: options.multiple ?? false,
             showRecentFiles: options.showRecentFiles ?? true,
