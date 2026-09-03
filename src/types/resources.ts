@@ -100,7 +100,7 @@ export class ResourceManager implements IResourceManager {
  */
 export class WeakResourceTracker {
     private resources = new Map<string, WeakRef<IDisposable>>();
-    private cleanupInterval: NodeJS.Timeout | null = null;
+    private cleanupInterval: number | null = null;
 
     constructor(cleanupIntervalMs = 60000) {
         this.startCleanup(cleanupIntervalMs);
@@ -124,7 +124,7 @@ export class WeakResourceTracker {
     }
 
     private startCleanup(intervalMs: number): void {
-        this.cleanupInterval = setInterval(() => {
+        this.cleanupInterval = window.setInterval(() => {
             for (const [id, ref] of this.resources) {
                 if (!ref.deref()) {
                     this.resources.delete(id);
@@ -135,7 +135,7 @@ export class WeakResourceTracker {
 
     dispose(): void {
         if (this.cleanupInterval) {
-            clearInterval(this.cleanupInterval);
+            window.clearInterval(this.cleanupInterval);
             this.cleanupInterval = null;
         }
         this.resources.clear();

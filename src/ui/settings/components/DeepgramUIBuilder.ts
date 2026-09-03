@@ -36,7 +36,7 @@ export class DeepgramUIBuilder {
      * 경고 박스 생성
      */
     public createWarning(text: string): HTMLElement {
-        const warningEl = this.containerEl.createEl('div', {
+        const warningEl = this.containerEl.createDiv({
             cls: UI_CONSTANTS.CLASSES.WARNING,
             text,
         });
@@ -52,7 +52,7 @@ export class DeepgramUIBuilder {
         this.removeElement(`.${UI_CONSTANTS.CLASSES.MODEL_INFO}`);
 
         // 모델 정보 컨테이너
-        const infoContainer = this.containerEl.createEl('div', {
+        const infoContainer = this.containerEl.createDiv({
             cls: UI_CONSTANTS.CLASSES.MODEL_INFO,
         });
         infoContainer.addClass(UI_CONSTANTS.STYLES.INFO_CONTAINER);
@@ -76,18 +76,18 @@ export class DeepgramUIBuilder {
      * 성능 지표 행 생성
      */
     private createMetricsRow(container: HTMLElement, model: DeepgramModel): void {
-        const metricsEl = container.createEl('div', {
+        const metricsEl = container.createDiv({
             cls: UI_CONSTANTS.CLASSES.MODEL_METRICS,
         });
         metricsEl.addClass(UI_CONSTANTS.STYLES.METRICS_ROW);
 
-        metricsEl.createEl('span', {
+        metricsEl.createSpan({
             text: `Accuracy: ${model.performance.accuracy}%`,
         });
-        metricsEl.createEl('span', {
+        metricsEl.createSpan({
             text: `Speed: ${model.performance.speed}`,
         });
-        metricsEl.createEl('span', {
+        metricsEl.createSpan({
             text: `Latency: ${model.performance.latency}`,
         });
     }
@@ -96,11 +96,11 @@ export class DeepgramUIBuilder {
      * 지원 언어 행 생성
      */
     private createLanguagesRow(container: HTMLElement, model: DeepgramModel): void {
-        const langEl = container.createEl('div', {
+        const langEl = container.createDiv({
             cls: UI_CONSTANTS.CLASSES.SUPPORTED_LANGUAGES,
         });
         langEl.addClass(UI_CONSTANTS.STYLES.LANGUAGES_ROW);
-        langEl.createEl('span', {
+        langEl.createSpan({
             text: `Supported languages: ${model.languages.join(', ')}`,
         });
     }
@@ -109,7 +109,7 @@ export class DeepgramUIBuilder {
      * 비용 추정 컨테이너 생성
      */
     public createCostEstimationContainer(): HTMLElement {
-        const costContainer = this.containerEl.createEl('div', {
+        const costContainer = this.containerEl.createDiv({
             cls: UI_CONSTANTS.CLASSES.COST_ESTIMATION,
         });
         costContainer.addClass(UI_CONSTANTS.STYLES.COST_CONTAINER);
@@ -130,7 +130,7 @@ export class DeepgramUIBuilder {
         // 기존 내용 제거
         const detailsEl =
             container.querySelector(`.${UI_CONSTANTS.CLASSES.COST_DETAILS}`) ||
-            container.createEl('div', { cls: UI_CONSTANTS.CLASSES.COST_DETAILS });
+            container.createDiv({ cls: UI_CONSTANTS.CLASSES.COST_DETAILS });
 
         detailsEl.empty();
 
@@ -142,7 +142,7 @@ export class DeepgramUIBuilder {
             return;
         }
 
-        const costInfo = detailsEl.createEl('div');
+        const costInfo = detailsEl.createDiv();
 
         // 분당 비용
         costInfo.createEl('p', {
@@ -177,7 +177,7 @@ export class DeepgramUIBuilder {
      * 에러 컨테이너 생성
      */
     public createErrorContainer(error: unknown): HTMLElement {
-        const errorContainer = this.containerEl.createEl('div', {
+        const errorContainer = this.containerEl.createDiv({
             cls: UI_CONSTANTS.CLASSES.WARNING,
         });
         errorContainer.addClass(UI_CONSTANTS.STYLES.ERROR_CONTAINER);
@@ -205,7 +205,7 @@ export class DeepgramUIBuilder {
      * 특정 섹션 컨테이너 생성
      */
     public createSection(className: string, title?: string): HTMLElement {
-        const section = this.containerEl.createEl('div', { cls: className });
+        const section = this.containerEl.createDiv({ cls: className });
         if (title) {
             section.createEl('h5', { text: title });
         }

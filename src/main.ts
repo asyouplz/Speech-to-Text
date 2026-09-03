@@ -529,7 +529,7 @@ export default class SpeechToTextPlugin extends Plugin {
                     case 'completed':
                         updateStatusText('✅ Transcription complete');
                         // Clear after 3 seconds
-                        setTimeout(() => {
+                        window.setTimeout(() => {
                             if (this.stateManager.getState().status === 'completed') {
                                 updateStatusText('');
                             }
@@ -538,7 +538,7 @@ export default class SpeechToTextPlugin extends Plugin {
                     case 'error':
                         updateStatusText('❌ Transcription failed');
                         // Clear after 3 seconds
-                        setTimeout(() => {
+                        window.setTimeout(() => {
                             if (this.stateManager.getState().status === 'error') {
                                 updateStatusText('');
                             }
@@ -780,10 +780,10 @@ class AudioFilePickerModal extends Modal {
 
         contentEl.createEl('h2', { text: 'Select an audio file to transcribe' });
 
-        const listEl = contentEl.createEl('div', { cls: 'speech-to-text-file-list' });
+        const listEl = contentEl.createDiv({ cls: 'speech-to-text-file-list' });
 
         this.files.forEach((file) => {
-            const itemEl = listEl.createEl('div', {
+            const itemEl = listEl.createDiv({
                 cls: 'speech-to-text-file-item',
                 text: file.path,
             });

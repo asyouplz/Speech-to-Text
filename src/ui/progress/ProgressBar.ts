@@ -64,7 +64,7 @@ export class ProgressBar {
     }
 
     create(container: HTMLElement): HTMLElement {
-        this.element = createEl('div', {
+        this.element = createDiv({
             cls: `sn-progress-bar sn-progress-bar--${this.options.size} sn-progress-bar--${this.options.color}`,
         });
         this.element.setAttribute('role', 'progressbar');
@@ -78,7 +78,7 @@ export class ProgressBar {
 
         // 라벨
         if (this.options.label) {
-            this.labelElement = createEl('div', {
+            this.labelElement = createDiv({
                 cls: 'sn-progress-bar__label',
                 text: this.options.label,
             });
@@ -86,10 +86,10 @@ export class ProgressBar {
         }
 
         // 진행률 바 컨테이너
-        const barContainer = createEl('div', { cls: 'sn-progress-bar__container' });
+        const barContainer = createDiv({ cls: 'sn-progress-bar__container' });
 
         // 진행률 채우기
-        this.progressFill = createEl('div', { cls: 'sn-progress-bar__fill' });
+        this.progressFill = createDiv({ cls: 'sn-progress-bar__fill' });
 
         if (this.options.striped) {
             this.progressFill.classList.add('sn-progress-bar__fill--striped');
@@ -105,11 +105,11 @@ export class ProgressBar {
         this.element.appendChild(barContainer);
 
         // 정보 표시 영역
-        const infoContainer = createEl('div', { cls: 'sn-progress-bar__info' });
+        const infoContainer = createDiv({ cls: 'sn-progress-bar__info' });
 
         // 퍼센트 표시
         if (this.options.showPercentage && !this.options.indeterminate) {
-            this.percentageElement = createEl('span', {
+            this.percentageElement = createSpan({
                 cls: 'sn-progress-bar__percentage',
                 text: '0%',
             });
@@ -118,7 +118,7 @@ export class ProgressBar {
 
         // 예상 시간 표시
         if (this.options.showTimeRemaining && !this.options.indeterminate) {
-            this.timeRemainingElement = createEl('span', {
+            this.timeRemainingElement = createSpan({
                 cls: 'sn-progress-bar__time-remaining',
                 text: 'Calculating...',
             });
@@ -213,11 +213,11 @@ export class ProgressBar {
             this.setProgressImmediate(currentValue, currentPercentage);
 
             if (progress < 1) {
-                this.animationFrame = requestAnimationFrame(animate);
+                this.animationFrame = window.requestAnimationFrame(animate);
             }
         };
 
-        this.animationFrame = requestAnimationFrame(animate);
+        this.animationFrame = window.requestAnimationFrame(animate);
     }
 
     /**
@@ -308,7 +308,7 @@ export class ProgressBar {
      */
     setLabel(label: string) {
         if (!this.labelElement) {
-            this.labelElement = createEl('div', { cls: 'sn-progress-bar__label' });
+            this.labelElement = createDiv({ cls: 'sn-progress-bar__label' });
             this.element?.insertBefore(this.labelElement, this.element.firstChild);
         }
 
@@ -387,10 +387,10 @@ export class MultiStepProgressBar {
     }
 
     create(container: HTMLElement): HTMLElement {
-        this.element = createEl('div', { cls: 'sn-multi-step-progress' });
+        this.element = createDiv({ cls: 'sn-multi-step-progress' });
 
         // 단계 표시
-        this.stepsContainer = createEl('div', { cls: 'sn-multi-step-progress__steps' });
+        this.stepsContainer = createDiv({ cls: 'sn-multi-step-progress__steps' });
         const stepsContainer = this.stepsContainer;
         if (!stepsContainer) {
             container.appendChild(this.element);
@@ -398,15 +398,15 @@ export class MultiStepProgressBar {
         }
 
         this.steps.forEach((step, index) => {
-            const stepEl = createEl('div', { cls: 'step' });
+            const stepEl = createDiv({ cls: 'step' });
             stepEl.setAttribute('data-step-id', step.id);
 
-            const stepNumber = createEl('span', {
+            const stepNumber = createSpan({
                 cls: 'sn-step__number',
                 text: String(index + 1),
             });
 
-            const stepLabel = createEl('span', {
+            const stepLabel = createSpan({
                 cls: 'sn-step__label',
                 text: step.label,
             });
@@ -418,7 +418,7 @@ export class MultiStepProgressBar {
 
             // 단계 사이 연결선
             if (index < this.steps.length - 1) {
-                const connector = createEl('div', { cls: 'step-connector' });
+                const connector = createDiv({ cls: 'step-connector' });
                 stepsContainer.appendChild(connector);
             }
         });
@@ -426,7 +426,7 @@ export class MultiStepProgressBar {
         this.element.appendChild(stepsContainer);
 
         // 전체 진행률 바
-        const progressContainer = createEl('div', { cls: 'sn-multi-step-progress__bar' });
+        const progressContainer = createDiv({ cls: 'sn-multi-step-progress__bar' });
         this.progressBar.create(progressContainer);
         this.element.appendChild(progressContainer);
 
@@ -482,7 +482,7 @@ export class MultiStepProgressBar {
         // 다음 단계 자동 시작
         const nextIndex = this.currentStepIndex + 1;
         if (nextIndex < this.steps.length) {
-            setTimeout(() => {
+            window.setTimeout(() => {
                 this.startStep(this.steps[nextIndex].id);
             }, 300);
         }

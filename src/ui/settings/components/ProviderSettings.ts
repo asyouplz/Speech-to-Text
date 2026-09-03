@@ -1,3 +1,4 @@
+import { withCompatibleSliderValue } from '../settingDefinitions';
 import { Setting, Notice } from 'obsidian';
 import type SpeechToTextPlugin from '../../../main';
 import {
@@ -62,7 +63,7 @@ export class ProviderSettings {
             cls: 'setting-item-name',
         });
 
-        headerEl.createEl('div', {
+        headerEl.createDiv({
             text: 'Choose your preferred speech-to-text provider or let the system auto-select based on performance.',
             cls: 'setting-item-description',
         });
@@ -265,13 +266,13 @@ export class ProviderSettings {
             .setName('Minimum quality threshold')
             .setDesc('Minimum acceptable transcription accuracy (0-100%)')
             .addSlider((slider) => {
-                slider
-                    .setLimits(0, 100, 5)
-                    .setValue(this.plugin.settings.qualityThreshold || 85)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        await this.saveQualityThreshold(value);
-                    });
+                withCompatibleSliderValue(
+                    slider
+                        .setLimits(0, 100, 5)
+                        .setValue(this.plugin.settings.qualityThreshold || 85)
+                ).onChange(async (value) => {
+                    await this.saveQualityThreshold(value);
+                });
             });
     }
 
@@ -306,22 +307,20 @@ export class ProviderSettings {
     private renderABTestDetails(containerEl: HTMLElement): void {
         new Setting(containerEl)
             .setName('Traffic split')
-            .setDesc('Percentage of requests to send to whisper vs deepgram')
+            .setDesc('Percentage of requests to send to Whisper vs Deepgram')
             .addSlider((slider) => {
                 const currentSplit = this.plugin.settings.abTestSplit || 50;
 
-                slider
-                    .setLimits(0, 100, 5)
-                    .setValue(currentSplit)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        await this.saveABTestSplit(value);
-                    });
+                withCompatibleSliderValue(
+                    slider.setLimits(0, 100, 5).setValue(currentSplit)
+                ).onChange(async (value) => {
+                    await this.saveABTestSplit(value);
+                });
 
                 // 분할 비율 표시
                 const displayEl = containerEl.createDiv({ cls: 'sn-split-display' });
-                displayEl.createEl('span', { text: `General: ${currentSplit}%` });
-                displayEl.createEl('span', { text: `Fast: ${100 - currentSplit}%` });
+                displayEl.createSpan({ text: `General: ${currentSplit}%` });
+                displayEl.createSpan({ text: `Fast: ${100 - currentSplit}%` });
             });
     }
 
@@ -394,8 +393,8 @@ export class ProviderSettings {
 
         statItems.forEach((item) => {
             const itemEl = statGrid.createDiv({ cls: 'sn-stat-item' });
-            itemEl.createEl('span', { cls: 'sn-stat-label', text: item.label });
-            const valueSpan = itemEl.createEl('span', { cls: 'sn-stat-value', text: item.value });
+            itemEl.createSpan({ cls: 'sn-stat-label', text: item.label });
+            const valueSpan = itemEl.createSpan({ cls: 'sn-stat-value', text: item.value });
             if (item.className) {
                 valueSpan.addClass(item.className);
             }
@@ -414,13 +413,13 @@ export class ProviderSettings {
         const bars = chartContent.createDiv({ cls: 'sn-chart-bars' });
 
         const whisperBar = bars.createDiv({ cls: 'sn-chart-bar sn-chart-bar--whisper' });
-        whisperBar.createEl('span', { cls: 'sn-bar-label', text: 'General' });
+        whisperBar.createSpan({ cls: 'sn-bar-label', text: 'General' });
 
         const deepgramBar = bars.createDiv({ cls: 'sn-chart-bar sn-chart-bar--deepgram' });
-        deepgramBar.createEl('span', { cls: 'sn-bar-label', text: 'Fast' });
+        deepgramBar.createSpan({ cls: 'sn-bar-label', text: 'Fast' });
 
         const legend = chartContent.createDiv({ cls: 'sn-chart-legend' });
-        legend.createEl('span', { text: 'Overall performance score' });
+        legend.createSpan({ text: 'Overall performance score' });
     }
 
     /**

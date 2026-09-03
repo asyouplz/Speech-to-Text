@@ -1,4 +1,11 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import {
+    App,
+    PluginSettingTab,
+    Setting,
+    requireApiVersion,
+    type SettingDefinitionItem,
+} from 'obsidian';
+import { defineSettingsSection } from './settingDefinitions';
 import type SpeechToTextPlugin from '../../main';
 
 /**
@@ -12,8 +19,38 @@ export class SimpleSettingsTab extends PluginSettingTab {
         this.plugin = plugin;
     }
 
+    getSettingDefinitions(): SettingDefinitionItem[] {
+        return [
+            defineSettingsSection(
+                'Transcription',
+                [
+                    'Transcription provider',
+                    'API key',
+                    'Whisper',
+                    'Deepgram',
+                    'Fast model',
+                    'Language',
+                    'Auto-insert transcription',
+                    'Debug details',
+                ],
+                (container) => this.renderSettings(container)
+            ),
+        ];
+    }
+
     display(): void {
-        const { containerEl } = this;
+        this.renderSettings(this.containerEl);
+    }
+
+    private refreshSettings(): void {
+        if (requireApiVersion('1.13.0')) {
+            this.update();
+        } else {
+            this.renderSettings(this.containerEl);
+        }
+    }
+
+    private renderSettings(containerEl: HTMLElement): void {
         if (!containerEl) {
             this.debug('SimpleSettingsTab display called without container element');
             return;
@@ -48,7 +85,7 @@ export class SimpleSettingsTab extends PluginSettingTab {
                                 this.plugin.settings.provider = value;
                                 await this.plugin.saveSettings();
                                 // UI 새로고침
-                                this.display();
+                                this.refreshSettings();
                             }
                         });
                     this.debug('Dropdown created successfully');

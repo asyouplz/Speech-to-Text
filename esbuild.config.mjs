@@ -78,6 +78,8 @@ const context = await esbuild.context({
     ...optimizationConfig,
 
     define: {
+        __SPEECHNOTE_DEVELOPMENT__: JSON.stringify(!prod),
+        __SPEECHNOTE_TEST__: 'false',
         'process.env.NODE_ENV': prod ? '"production"' : '"development"',
         'process.env.PERFORMANCE_MONITORING': '"enabled"',
     },

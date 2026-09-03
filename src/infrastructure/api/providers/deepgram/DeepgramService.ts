@@ -264,7 +264,7 @@ class RateLimiter {
     }
 
     private sleep(ms: number): Promise<void> {
-        return new Promise((resolve) => setTimeout(resolve, ms));
+        return new Promise((resolve) => window.setTimeout(resolve, ms));
     }
 }
 
@@ -401,7 +401,7 @@ class ExponentialBackoffRetry {
     }
 
     private sleep(ms: number): Promise<void> {
-        return new Promise((resolve) => setTimeout(resolve, ms));
+        return new Promise((resolve) => window.setTimeout(resolve, ms));
     }
 }
 
@@ -598,7 +598,7 @@ export class DeepgramService {
             };
 
             // Implement timeout using AbortController with dynamic timeout
-            const timeoutId = setTimeout(() => {
+            const timeoutId = window.setTimeout(() => {
                 if (this.abortController) {
                     this.logger.warn(
                         `Deepgram request timeout after ${dynamicTimeout}ms for ${audio.byteLength} byte file`
@@ -611,7 +611,7 @@ export class DeepgramService {
             try {
                 response = await requestUrl(requestParams);
             } finally {
-                clearTimeout(timeoutId);
+                window.clearTimeout(timeoutId);
             }
             const processingTime = Date.now() - startTime;
 

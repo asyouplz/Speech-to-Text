@@ -214,12 +214,21 @@ const DEFAULT_CONFIG = {
     },
 };
 
+import { isPlainRecord } from '../types/guards';
 import { DeepgramLogger } from '../ui/settings/helpers/DeepgramLogger';
 import deepgramModelsConfigJson from '../../config/deepgram-models.json';
 
-// Safe import with fallback
-const deepgramModelsConfig: typeof DEFAULT_CONFIG =
-    (deepgramModelsConfigJson as unknown as typeof DEFAULT_CONFIG) ?? DEFAULT_CONFIG;
+interface DeepgramRegistryConfig {
+    models: Record<string, unknown>;
+    features: Record<string, unknown>;
+}
+
+// JSON is external input; validate its shape before inspecting individual entries.
+const deepgramModelsConfig: unknown = deepgramModelsConfigJson;
+
+function isRegistryConfig(value: unknown): value is DeepgramRegistryConfig {
+    return isPlainRecord(value) && isPlainRecord(value.models) && isPlainRecord(value.features);
+}
 
 /**
  * Deepgram 모델 정보 인터페이스
@@ -321,7 +330,9 @@ export class DeepgramModelRegistry {
      */
     private loadConfiguration(): void {
         try {
-            const config = deepgramModelsConfig || DEFAULT_CONFIG;
+            const config = isRegistryConfig(deepgramModelsConfig)
+                ? deepgramModelsConfig
+                : DEFAULT_CONFIG;
 
             this.loadModels(config);
             this.loadFeatures(config);
@@ -339,7 +350,7 @@ export class DeepgramModelRegistry {
     /**
      * 모델 로드
      */
-    private loadModels(config: typeof DEFAULT_CONFIG): void {
+    private loadModels(config: DeepgramRegistryConfig): void {
         if (!config.models || typeof config.models !== 'object') {
             this.logger.warn('No models in configuration');
             return;
@@ -348,7 +359,7 @@ export class DeepgramModelRegistry {
         Object.entries(config.models).forEach(([key, model]) => {
             try {
                 if (this.isValidModel(model)) {
-                    this.models.set(key, model as DeepgramModel);
+                    this.models.set(key, model);
                 } else {
                     this.logger.warn(`Invalid model structure for ${key}`);
                 }
@@ -363,7 +374,7 @@ export class DeepgramModelRegistry {
     /**
      * 기능 로드
      */
-    private loadFeatures(config: typeof DEFAULT_CONFIG): void {
+    private loadFeatures(config: DeepgramRegistryConfig): void {
         if (!config.features || typeof config.features !== 'object') {
             this.logger.warn('No features in configuration');
             return;
@@ -372,7 +383,7 @@ export class DeepgramModelRegistry {
         Object.entries(config.features).forEach(([key, feature]) => {
             try {
                 if (this.isValidFeature(feature)) {
-                    this.features.set(key, feature as DeepgramFeature);
+                    this.features.set(key, feature);
                 } else {
                     this.logger.warn(`Invalid feature structure for ${key}`);
                 }
@@ -390,10 +401,10 @@ export class DeepgramModelRegistry {
     private loadFallbackConfiguration(): void {
         try {
             Object.entries(DEFAULT_CONFIG.models).forEach(([key, model]) => {
-                this.models.set(key, model as DeepgramModel);
+                this.models.set(key, model);
             });
             Object.entries(DEFAULT_CONFIG.features).forEach(([key, feature]) => {
-                this.features.set(key, feature as DeepgramFeature);
+                this.features.set(key, feature);
             });
             this.logger.info('Fallback configuration loaded');
         } catch (error) {

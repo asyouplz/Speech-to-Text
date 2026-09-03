@@ -1,3 +1,4 @@
+import { withCompatibleSliderValue } from '../settingDefinitions';
 import { Setting } from 'obsidian';
 import type SpeechToTextPlugin from '../../../main';
 
@@ -83,15 +84,16 @@ export class AudioSettings {
         tempValue.setText(String(this.plugin.settings.temperature || 0));
 
         temperatureSetting.addSlider((slider) =>
-            slider
-                .setLimits(0, 1, 0.1)
-                .setValue(this.plugin.settings.temperature || 0)
-                .onChange(async (value) => {
-                    this.plugin.settings.temperature = value;
-                    tempValue.setText(String(value));
-                    await this.plugin.saveSettings();
-                })
-                .setDynamicTooltip()
+            withCompatibleSliderValue(
+                slider
+                    .setLimits(0, 1, 0.1)
+                    .setValue(this.plugin.settings.temperature || 0)
+                    .onChange(async (value) => {
+                        this.plugin.settings.temperature = value;
+                        tempValue.setText(String(value));
+                        await this.plugin.saveSettings();
+                    })
+            )
         );
 
         // 프롬프트 설정
@@ -118,15 +120,16 @@ export class AudioSettings {
         sizeValue.setText(`${currentSize} megabytes`);
 
         fileSizeSetting.addSlider((slider) =>
-            slider
-                .setLimits(1, 25, 1)
-                .setValue(currentSize)
-                .onChange(async (value) => {
-                    this.plugin.settings.maxFileSize = value * 1024 * 1024;
-                    sizeValue.setText(`${value} megabytes`);
-                    await this.plugin.saveSettings();
-                })
-                .setDynamicTooltip()
+            withCompatibleSliderValue(
+                slider
+                    .setLimits(1, 25, 1)
+                    .setValue(currentSize)
+                    .onChange(async (value) => {
+                        this.plugin.settings.maxFileSize = value * 1024 * 1024;
+                        sizeValue.setText(`${value} megabytes`);
+                        await this.plugin.saveSettings();
+                    })
+            )
         );
 
         // 오디오 품질 설정

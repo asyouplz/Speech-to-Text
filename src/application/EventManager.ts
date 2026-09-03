@@ -169,7 +169,7 @@ export class EventManager extends EventEmitter<AppEventMap> {
             this.logger.debug(`Listener registered for: ${String(event)}`);
         }
 
-        return super.on(event as keyof AppEventMap, listener);
+        return super.on(event, listener);
     }
 
     /**
@@ -185,7 +185,7 @@ export class EventManager extends EventEmitter<AppEventMap> {
             this.logger.debug(`Once listener registered for: ${String(event)}`);
         }
 
-        return super.once(event as keyof AppEventMap, listener);
+        return super.once(event, listener);
     }
 
     /**
@@ -197,9 +197,7 @@ export class EventManager extends EventEmitter<AppEventMap> {
         transformer?: (data: AppEventMap[K]) => AppEventMap[K2]
     ): Unsubscribe {
         return this.on(sourceEvent, (data) => {
-            const transformedData = transformer
-                ? transformer(data)
-                : (data as unknown as AppEventMap[K2]);
+            const transformedData = transformer ? transformer(data) : data;
             this.emit(targetEvent, transformedData);
         });
     }
@@ -227,14 +225,14 @@ export class EventManager extends EventEmitter<AppEventMap> {
         wait: number,
         listener: EventListener<AppEventMap[K]>
     ): Unsubscribe {
-        let timeoutId: ReturnType<typeof setTimeout> | null = null;
+        let timeoutId: number | null = null;
 
         return this.on(event, (data) => {
             if (timeoutId !== null) {
-                clearTimeout(timeoutId);
+                window.clearTimeout(timeoutId);
             }
 
-            timeoutId = setTimeout(() => {
+            timeoutId = window.setTimeout(() => {
                 void listener(data);
                 timeoutId = null;
             }, wait);
@@ -255,7 +253,7 @@ export class EventManager extends EventEmitter<AppEventMap> {
             if (!inThrottle) {
                 void listener(data);
                 inThrottle = true;
-                setTimeout(() => {
+                window.setTimeout(() => {
                     inThrottle = false;
                 }, limit);
             }

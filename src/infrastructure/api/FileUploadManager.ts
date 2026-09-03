@@ -422,8 +422,7 @@ export class FileUploadManager {
     private async decodeAudioData(buffer: ArrayBuffer): Promise<AudioBuffer> {
         if (!this.audioContext) {
             const audioContextCtor =
-                Reflect.get(globalThis, 'AudioContext') ??
-                Reflect.get(globalThis, 'webkitAudioContext');
+                Reflect.get(window, 'AudioContext') ?? Reflect.get(window, 'webkitAudioContext');
             const AudioContextCtor = this.isAudioContextCtor(audioContextCtor)
                 ? audioContextCtor
                 : null;
@@ -515,7 +514,7 @@ export class FileUploadManager {
             yield chunk;
 
             // CPU에 여유 시간 제공
-            await new Promise((resolve) => setTimeout(resolve, 0));
+            await new Promise((resolve) => window.setTimeout(resolve, 0));
         }
     }
 

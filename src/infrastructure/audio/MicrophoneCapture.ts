@@ -54,11 +54,11 @@ export class MicrophoneCapture {
         if (!node || this.closed) return Promise.resolve(false);
         return new Promise((resolve) => {
             const finish = (success: boolean) => {
-                clearTimeout(timer);
+                window.clearTimeout(timer);
                 this.flushed = null;
                 resolve(success);
             };
-            const timer = setTimeout(() => finish(false), 2000);
+            const timer = window.setTimeout(() => finish(false), 2000);
             this.flushed = () => finish(true);
             node.port.postMessage('flush');
         });

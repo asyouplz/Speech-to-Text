@@ -508,7 +508,7 @@ export class FilePickerModalRefactored extends Modal {
      * UI 새로고침 - 최적화된 업데이트
      */
     private refreshUI(): void {
-        requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
             // Update selected files list
             const listContainer = this.modalEl.querySelector('.sn-selected-files-list');
             if (listContainer instanceof HTMLElement) {
@@ -749,8 +749,8 @@ class SelectedFilesListRenderer {
 
     private renderFileInfo(container: HTMLElement, file: TFile): void {
         const fileInfo = container.createDiv('sn-file-info');
-        fileInfo.createEl('span', { text: file.name, cls: 'sn-file-name' });
-        fileInfo.createEl('span', {
+        fileInfo.createSpan({ text: file.name, cls: 'sn-file-name' });
+        fileInfo.createSpan({
             text: this.formatFileSize(file.stat.size),
             cls: 'sn-file-size',
         });

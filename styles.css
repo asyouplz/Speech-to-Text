@@ -2193,6 +2193,19 @@ textarea:focus-visible,
 .speechnote-live-transcript {
     white-space: pre-wrap;
 }
+
+/* Imperatively rendered settings sections inside the searchable settings API. */
+.sn-settings-section {
+    display: block;
+}
+/* Slider values are added by the plugin only on Obsidian versions before 1.13.0. */
+.sn-slider-value {
+    min-width: 3em;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+}
 /**
  * Provider Settings UI Styles
  * 

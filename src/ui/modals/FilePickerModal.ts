@@ -263,8 +263,8 @@ export class FilePickerModal extends Modal {
 
             // 파일 정보
             const fileInfo = fileItem.createDiv('sn-file-info');
-            fileInfo.createEl('span', { text: file.name, cls: 'sn-file-name' });
-            fileInfo.createEl('span', {
+            fileInfo.createSpan({ text: file.name, cls: 'sn-file-name' });
+            fileInfo.createSpan({
                 text: this.formatFileSize(file.stat.size),
                 cls: 'sn-file-size',
             });

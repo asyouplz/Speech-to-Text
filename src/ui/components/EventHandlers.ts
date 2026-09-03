@@ -364,7 +364,7 @@ export class EventHandlers {
             if (!inThrottle) {
                 func(...args);
                 inThrottle = true;
-                setTimeout(() => (inThrottle = false), limit);
+                window.setTimeout(() => (inThrottle = false), limit);
             }
         };
     }

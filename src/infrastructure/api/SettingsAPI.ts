@@ -186,7 +186,7 @@ export class SettingsAPI implements ISettingsAPI {
         try {
             const parsed = JSON.parse(stored) as unknown;
             const parsedObj = isPlainRecord(parsed) ? parsed : {};
-            return parsedObj.version !== (this.defaultSettings.version as unknown as string);
+            return parsedObj.version !== this.defaultSettings.version;
         } catch {
             return false;
         }
@@ -226,7 +226,7 @@ export class SettingsAPI implements ISettingsAPI {
             const encoder = new TextEncoder();
             const data = encoder.encode(json);
             const compressed = await this.compress(data);
-            return new Blob([compressed], { type: 'application/gzip' });
+            return new Blob([new Uint8Array(compressed)], { type: 'application/gzip' });
         }
 
         return new Blob([json], { type: 'application/json' });
@@ -256,9 +256,7 @@ export class SettingsAPI implements ISettingsAPI {
 
             // 암호화된 파일 처리
             if (options.password) {
-                importedSettings = (await this.encryptor.decryptSensitiveSettings(
-                    importedSettings as Record<string, unknown>
-                )) as unknown as Partial<SettingsSchema>;
+                importedSettings = await this.encryptor.decryptSensitiveSettings(importedSettings);
             }
 
             // 검증

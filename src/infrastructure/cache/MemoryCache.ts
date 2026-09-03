@@ -316,7 +316,7 @@ export class MemoryCache<T = unknown> {
      */
     destroy(): void {
         if (this.cleanupInterval) {
-            clearInterval(this.cleanupInterval);
+            window.clearInterval(this.cleanupInterval);
         }
         this.clear();
     }
@@ -335,8 +335,13 @@ export const globalCache = new MemoryCache({
  * 캐시 데코레이터
  */
 export function Cacheable(options: { ttl?: number; key?: string } = {}) {
-    return function (target: object, propertyName: string, descriptor: PropertyDescriptor) {
+    return function (
+        target: object,
+        propertyName: string,
+        descriptor: TypedPropertyDescriptor<(...args: unknown[]) => unknown>
+    ) {
         const originalMethod = descriptor.value;
+        if (!originalMethod) return descriptor;
 
         descriptor.value = async function (...args: unknown[]) {
             const cacheKey =

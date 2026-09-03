@@ -115,10 +115,10 @@ export abstract class BaseTranscriptionAdapter implements ITranscriber {
             return false;
         }
 
-        const id = Reflect.get(value, 'id');
-        const start = Reflect.get(value, 'start');
-        const end = Reflect.get(value, 'end');
-        const text = Reflect.get(value, 'text');
+        const id: unknown = Reflect.get(value, 'id');
+        const start: unknown = Reflect.get(value, 'start');
+        const end: unknown = Reflect.get(value, 'end');
+        const text: unknown = Reflect.get(value, 'text');
 
         return (
             typeof id === 'number' &&

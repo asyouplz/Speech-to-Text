@@ -132,7 +132,7 @@ export class RecentFiles {
 
         // 경로 (폴더명만)
         if (file.parent) {
-            fileMeta.createEl('span', {
+            fileMeta.createSpan({
                 cls: 'sn-file-path',
                 text: file.parent.path,
                 title: file.path,
@@ -140,13 +140,13 @@ export class RecentFiles {
         }
 
         // 사용 시간
-        fileMeta.createEl('span', {
+        fileMeta.createSpan({
             cls: 'sn-file-time',
             text: this.formatRelativeTime(entry.timestamp),
         });
 
         // 파일 크기
-        fileMeta.createEl('span', {
+        fileMeta.createSpan({
             cls: 'sn-file-size',
             text: this.formatFileSize(file.stat.size),
         });

@@ -235,7 +235,7 @@ export class StatisticsDashboard {
      * 대시보드 생성
      */
     create(container: HTMLElement): HTMLElement {
-        this.element = createEl('div', { cls: 'sn-statistics-dashboard' });
+        this.element = createDiv({ cls: 'sn-statistics-dashboard' });
         this.element.setAttribute('role', 'region');
         this.element.setAttribute('aria-label', 'Statistics dashboard');
 
@@ -273,12 +273,12 @@ export class StatisticsDashboard {
      * 헤더 생성
      */
     private createHeader(): HTMLElement {
-        const header = createEl('div', { cls: 'sn-dashboard__header' });
+        const header = createDiv({ cls: 'sn-dashboard__header' });
 
         const title = createEl('h2', { text: 'Transcription statistics' });
         header.appendChild(title);
 
-        const controls = createEl('div', { cls: 'sn-dashboard__controls' });
+        const controls = createDiv({ cls: 'sn-dashboard__controls' });
 
         // 새로고침 버튼
         const refreshBtn = createEl('button', { cls: 'dashboard__refresh', text: 'Refresh' });
@@ -304,7 +304,7 @@ export class StatisticsDashboard {
      * 통계 그리드 생성
      */
     private createStatsGrid(): HTMLElement {
-        const grid = createEl('div', { cls: 'sn-dashboard__stats-grid' });
+        const grid = createDiv({ cls: 'sn-dashboard__stats-grid' });
 
         // 통계 카드들
         const cards = [
@@ -319,22 +319,22 @@ export class StatisticsDashboard {
         ];
 
         cards.forEach((card) => {
-            const cardEl = createEl('div', {
+            const cardEl = createDiv({
                 cls: card.color
                     ? ['sn-stats-card', `sn-stats-card--${card.color}`]
                     : 'sn-stats-card',
             });
             cardEl.setAttribute('data-stat-id', card.id);
 
-            const icon = createEl('div', { cls: 'sn-stats-card__icon', text: card.icon });
+            const icon = createDiv({ cls: 'sn-stats-card__icon', text: card.icon });
             cardEl.appendChild(icon);
 
-            const content = createEl('div', { cls: 'sn-stats-card__content' });
+            const content = createDiv({ cls: 'sn-stats-card__content' });
 
-            const value = createEl('div', { cls: 'sn-stats-card__value', text: card.value });
+            const value = createDiv({ cls: 'sn-stats-card__value', text: card.value });
             content.appendChild(value);
 
-            const label = createEl('div', { cls: 'sn-stats-card__label', text: card.label });
+            const label = createDiv({ cls: 'sn-stats-card__label', text: card.label });
             content.appendChild(label);
 
             cardEl.appendChild(content);
@@ -348,27 +348,27 @@ export class StatisticsDashboard {
      * 차트 영역 생성
      */
     private createCharts(): HTMLElement {
-        const charts = createEl('div', { cls: 'sn-dashboard__charts' });
+        const charts = createDiv({ cls: 'sn-dashboard__charts' });
 
         // 시간대별 차트
-        const timeChart = createEl('div', { cls: 'sn-chart-container' });
+        const timeChart = createDiv({ cls: 'sn-chart-container' });
 
         const timeChartTitle = createEl('h3', { text: 'Transcriptions by hour' });
         timeChart.appendChild(timeChartTitle);
 
-        const timeChartCanvas = createEl('div', { cls: 'sn-chart-canvas' });
+        const timeChartCanvas = createDiv({ cls: 'sn-chart-canvas' });
         timeChartCanvas.id = 'time-chart';
         timeChart.appendChild(timeChartCanvas);
 
         charts.appendChild(timeChart);
 
         // 성공률 차트
-        const successChart = createEl('div', { cls: 'sn-chart-container' });
+        const successChart = createDiv({ cls: 'sn-chart-container' });
 
         const successChartTitle = createEl('h3', { text: 'Success rate trend' });
         successChart.appendChild(successChartTitle);
 
-        const successChartCanvas = createEl('div', { cls: 'sn-chart-canvas' });
+        const successChartCanvas = createDiv({ cls: 'sn-chart-canvas' });
         successChartCanvas.id = 'success-chart';
         successChart.appendChild(successChartCanvas);
 
@@ -381,9 +381,9 @@ export class StatisticsDashboard {
      * 히스토리 테이블 생성
      */
     private createHistoryTable(): HTMLElement {
-        const container = createEl('div', { cls: 'sn-dashboard__history' });
+        const container = createDiv({ cls: 'sn-dashboard__history' });
 
-        const header = createEl('div', { cls: 'sn-history__header' });
+        const header = createDiv({ cls: 'sn-history__header' });
 
         const title = createEl('h3', { text: 'Recent transcriptions' });
         header.appendChild(title);
@@ -495,20 +495,20 @@ export class StatisticsDashboard {
         const maxCount = hourCounts.reduce((max, count) => Math.max(max, count), 1);
 
         chartEl.replaceChildren();
-        const chartContainer = createEl('div', { cls: 'sn-bar-chart' });
+        const chartContainer = createDiv({ cls: 'sn-bar-chart' });
 
         hourCounts.forEach((count, hour) => {
-            const bar = createEl('div', { cls: 'sn-bar-chart__bar' });
+            const bar = createDiv({ cls: 'sn-bar-chart__bar' });
             const height = (count / maxCount) * 100;
             bar.setAttribute('style', `--sn-bar-height:${height}%`);
 
-            const valueLabel = createEl('span', {
+            const valueLabel = createSpan({
                 cls: 'sn-bar-chart__value',
                 text: String(count),
             });
             bar.appendChild(valueLabel);
 
-            const barLabel = createEl('span', { cls: 'sn-bar-chart__label', text: `${hour}:00` });
+            const barLabel = createSpan({ cls: 'sn-bar-chart__label', text: `${hour}:00` });
             bar.appendChild(barLabel);
 
             chartContainer.appendChild(bar);
@@ -542,21 +542,21 @@ export class StatisticsDashboard {
         const dates = Object.keys(dailyStats).slice(-7);
 
         chartEl.replaceChildren();
-        const lineChart = createEl('div', { cls: 'sn-line-chart' });
+        const lineChart = createDiv({ cls: 'sn-line-chart' });
 
         dates.forEach((date) => {
             const stat = dailyStats[date];
             const rate = stat.total > 0 ? (stat.success / stat.total) * 100 : 0;
 
-            const point = createEl('div', { cls: 'sn-line-chart__point' });
+            const point = createDiv({ cls: 'sn-line-chart__point' });
 
-            const valueLabel = createEl('span', {
+            const valueLabel = createSpan({
                 cls: 'sn-line-chart__value',
                 text: `${rate.toFixed(0)}%`,
             });
             point.appendChild(valueLabel);
 
-            const dateLabel = createEl('span', {
+            const dateLabel = createSpan({
                 cls: 'sn-line-chart__label',
                 text: date.split('/').slice(0, 2).join('/'),
             });
@@ -613,7 +613,7 @@ export class StatisticsDashboard {
             row.appendChild(processingTimeCell);
 
             const statusCell = createEl('td');
-            const statusBadge = createEl('span', {
+            const statusBadge = createSpan({
                 cls: ['sn-status', `sn-status--${record.status}`],
                 text: this.getStatusText(record.status),
             });
@@ -774,7 +774,7 @@ export class StatisticsDashboard {
      */
     private stopAutoRefresh() {
         if (this.refreshInterval) {
-            clearInterval(this.refreshInterval);
+            window.clearInterval(this.refreshInterval);
             this.refreshInterval = null;
         }
     }

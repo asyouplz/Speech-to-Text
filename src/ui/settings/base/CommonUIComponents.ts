@@ -166,7 +166,7 @@ export class UIComponentFactory {
                     .onClick(action.onClick);
 
                 if (action.type === 'primary') btn.setCta();
-                if (action.type === 'danger') btn.setWarning();
+                if (action.type === 'danger') btn.setClass('mod-warning');
             });
         }
 
@@ -235,7 +235,7 @@ export class UIComponentFactory {
                 tabPanels.querySelectorAll('.sn-tab-panel').forEach((panel) => {
                     panel.classList.remove('sn-is-active');
                     panel.setAttribute('hidden', 'true');
-                    if (panel instanceof HTMLElement) {
+                    if (panel.instanceOf(HTMLElement)) {
                         panel.empty();
                     }
                 });
@@ -270,7 +270,7 @@ export class UIComponentFactory {
 
                 e.preventDefault();
                 const newTab = tabList.querySelectorAll('.sn-tab-button')[newIndex];
-                if (newTab instanceof HTMLElement) {
+                if (newTab?.instanceOf(HTMLElement)) {
                     newTab.click();
                     newTab.focus();
                 }
@@ -350,30 +350,30 @@ export class UIComponentFactory {
         cancelText = 'Cancel'
     ): Promise<boolean> {
         return new Promise((resolve) => {
-            const modal = createEl('div', { cls: 'modal-container' });
+            const modal = createDiv({ cls: 'modal-container' });
 
-            const backdrop = createEl('div', { cls: 'modal-bg' });
+            const backdrop = createDiv({ cls: 'modal-bg' });
             modal.appendChild(backdrop);
 
-            const dialog = createEl('div', { cls: 'modal' });
+            const dialog = createDiv({ cls: 'modal' });
             modal.appendChild(dialog);
 
-            const closeBtn = createEl('div', {
+            const closeBtn = createDiv({
                 cls: 'modal-close-button',
                 text: '×',
                 attr: { 'aria-label': 'Close' },
             });
             dialog.appendChild(closeBtn);
 
-            const titleEl = createEl('div', { cls: 'modal-title', text: title });
+            const titleEl = createDiv({ cls: 'modal-title', text: title });
             dialog.appendChild(titleEl);
 
-            const content = createEl('div', { cls: 'modal-content' });
+            const content = createDiv({ cls: 'modal-content' });
             const messageEl = createEl('p', { text: message });
             content.appendChild(messageEl);
             dialog.appendChild(content);
 
-            const buttonContainer = createEl('div', { cls: 'modal-button-container' });
+            const buttonContainer = createDiv({ cls: 'modal-button-container' });
 
             const confirmBtn = createEl('button', { cls: 'mod-cta', text: confirmText });
             buttonContainer.appendChild(confirmBtn);

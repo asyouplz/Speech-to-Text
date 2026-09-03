@@ -436,7 +436,7 @@ export class DeepgramAdapter implements ITranscriber {
             const deepgramSettings = transcriptionSettings?.deepgram;
             const diarizationConfig = deepgramSettings?.diarizationConfig;
             if (isPlainRecord(diarizationConfig)) {
-                userDiarizationConfig = diarizationConfig as Partial<DiarizationConfig>;
+                userDiarizationConfig = diarizationConfig;
             }
         }
 

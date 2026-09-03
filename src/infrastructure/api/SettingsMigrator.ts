@@ -1,3 +1,4 @@
+import { isDevelopmentBuild } from '../../utils/buildEnvironment';
 /**
  * 설정 마이그레이션 시스템
  */
@@ -104,7 +105,7 @@ export class SettingsMigrator {
         for (const step of path) {
             const migration = this.migrations.get(step);
             if (migration) {
-                if (process.env.NODE_ENV === 'development') {
+                if (isDevelopmentBuild) {
                     console.debug(`Migrating settings: ${step}`);
                 }
                 settings = await migration(settings);

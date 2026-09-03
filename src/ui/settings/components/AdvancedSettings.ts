@@ -1,3 +1,4 @@
+import { withCompatibleSliderValue } from '../settingDefinitions';
 import { Setting } from 'obsidian';
 import type SpeechToTextPlugin from '../../../main';
 import { Notice } from 'obsidian';
@@ -64,15 +65,16 @@ export class AdvancedSettings {
             ttlValue.setText(`${currentHours} h`);
 
             ttlSetting.addSlider((slider) =>
-                slider
-                    .setLimits(1, 168, 1) // 1시간 ~ 1주일
-                    .setValue(currentHours)
-                    .onChange(async (value) => {
-                        this.plugin.settings.cacheTTL = value * 60 * 60 * 1000;
-                        ttlValue.setText(`${value} h`);
-                        await this.plugin.saveSettings();
-                    })
-                    .setDynamicTooltip()
+                withCompatibleSliderValue(
+                    slider
+                        .setLimits(1, 168, 1) // 1시간 ~ 1주일
+                        .setValue(currentHours)
+                        .onChange(async (value) => {
+                            this.plugin.settings.cacheTTL = value * 60 * 60 * 1000;
+                            ttlValue.setText(`${value} h`);
+                            await this.plugin.saveSettings();
+                        })
+                )
             );
         }
 
@@ -172,7 +174,7 @@ export class AdvancedSettings {
         logManagement.addButton((button) =>
             button
                 .setButtonText('Clear logs')
-                .setWarning()
+                .setClass('mod-warning')
                 .onClick(() => {
                     this.clearLogs();
                 })
@@ -191,9 +193,9 @@ export class AdvancedSettings {
             .setDesc('Maximum number of jobs to process at the same time')
             .addDropdown((dropdown) =>
                 dropdown
-                    .addOption('1', '1 job (stable)')
-                    .addOption('2', '2 jobs')
-                    .addOption('3', '3 jobs (fast)')
+                    .addOption('1', '1 Job (stable)')
+                    .addOption('2', '2 Jobs')
+                    .addOption('3', '3 Jobs (fast)')
                     .setValue('1')
                     .onChange(async (_value) => {
                         // 동시 처리 설정
@@ -218,10 +220,10 @@ export class AdvancedSettings {
             .setDesc('Maximum number of retries after a failure')
             .addDropdown((dropdown) =>
                 dropdown
-                    .addOption('1', '1 retry')
-                    .addOption('2', '2 retries')
-                    .addOption('3', '3 retries')
-                    .addOption('5', '5 retries')
+                    .addOption('1', '1 Retry')
+                    .addOption('2', '2 Retries')
+                    .addOption('3', '3 Retries')
+                    .addOption('5', '5 Retries')
                     .setValue('3')
                     .onChange(async (_value) => {
                         // 재시도 횟수 설정
@@ -235,18 +237,19 @@ export class AdvancedSettings {
             .setDesc('API request timeout in seconds');
 
         const timeoutValue = containerEl.createDiv({ cls: 'timeout-value' });
-        timeoutValue.setText('30 s');
+        timeoutValue.setText('Timeout: 30 seconds');
 
         timeoutSetting.addSlider((slider) =>
-            slider
-                .setLimits(10, 120, 5)
-                .setValue(30)
-                .onChange(async (value) => {
-                    timeoutValue.setText(`${value} s`);
-                    // 타임아웃 설정 저장
-                    await this.plugin.saveSettings();
-                })
-                .setDynamicTooltip()
+            withCompatibleSliderValue(
+                slider
+                    .setLimits(10, 120, 5)
+                    .setValue(30)
+                    .onChange(async (value) => {
+                        timeoutValue.setText(`Timeout: ${value} seconds`);
+                        // 타임아웃 설정 저장
+                        await this.plugin.saveSettings();
+                    })
+            )
         );
 
         // 메모리 최적화
@@ -268,7 +271,7 @@ export class AdvancedSettings {
         containerEl.createEl('h4', { text: 'Experimental features' });
 
         const warningEl = containerEl.createDiv({ cls: 'experimental-warning' });
-        warningEl.createEl('span', {
+        warningEl.createSpan({
             text: 'Experimental features may be unstable.',
             cls: 'warning-text',
         });
@@ -331,12 +334,12 @@ export class AdvancedSettings {
         const cacheSize = this.getCacheSize();
         const cacheCount = this.getCacheCount();
 
-        statusEl.createEl('div', {
+        statusEl.createDiv({
             text: `Cached entries: ${cacheCount}`,
             cls: 'cache-stat',
         });
 
-        statusEl.createEl('div', {
+        statusEl.createDiv({
             text: `Total size: ${this.formatBytes(cacheSize)}`,
             cls: 'cache-stat',
         });

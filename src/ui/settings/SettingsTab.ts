@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison -- Type guard pattern uses string comparison with enum values for type narrowing */
 
-import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
+import {
+    App,
+    PluginSettingTab,
+    Setting,
+    Notice,
+    Platform,
+    requireApiVersion,
+    type SettingDefinitionItem,
+} from 'obsidian';
+import { defineSettingsSection } from './settingDefinitions';
 import type SpeechToTextPlugin from '../../main';
 import { displayRealtimeSettings } from '../realtime/RealtimeSettings';
 import { DeepgramSettings } from './components/DeepgramSettings';
@@ -19,7 +28,85 @@ export class SettingsTab extends PluginSettingTab {
         this.plugin = plugin;
     }
 
+    getSettingDefinitions(): SettingDefinitionItem[] {
+        const sections: SettingDefinitionItem[] = [
+            defineSettingsSection(
+                'Provider and API',
+                [
+                    'Transcription provider',
+                    'Selection strategy',
+                    'Fallback strategy',
+                    'API key',
+                    'OpenAI',
+                    'Whisper',
+                    'Deepgram',
+                    'API endpoint',
+                    'Model',
+                    'Speaker diarization',
+                    'Punctuation',
+                    'Smart formatting',
+                    'Language detection',
+                    'Keywords',
+                ],
+                (container) => this.createApiSection(container)
+            ),
+            defineSettingsSection(
+                'Transcription',
+                ['Language', 'Auto-insert transcription', 'Insert position', 'Show format options'],
+                (container) => this.createGeneralSection(container)
+            ),
+        ];
+        if (!Platform.isMobile) {
+            sections.push(
+                defineSettingsSection(
+                    'Live microphone transcription (preview)',
+                    [
+                        'Enable live transcription',
+                        'Live transcription language',
+                        'Meeting context',
+                        'Stop after',
+                        'Minutes',
+                        'Automatic speaker transcription after stopping',
+                        'Recording',
+                    ],
+                    (container) => displayRealtimeSettings(container, this.plugin)
+                )
+            );
+        }
+        sections.push(
+            defineSettingsSection(
+                'Audio',
+                ['General model', 'Temperature', 'Add timestamp'],
+                (container) => this.createAudioSection(container)
+            ),
+            defineSettingsSection(
+                'Advanced',
+                ['Enable cache', 'Debug mode', 'Reset to defaults'],
+                (container) => this.createAdvancedSection(container)
+            ),
+            defineSettingsSection(
+                'Support',
+                ['Support development', 'Buy me a coffee'],
+                (container) => this.createSupportSection(container)
+            )
+        );
+        return sections;
+    }
+
+    // Obsidian before 1.13 uses the imperative settings renderer.
     display(): void {
+        this.renderLegacySettings();
+    }
+
+    private refreshSettings(): void {
+        if (requireApiVersion('1.13.0')) {
+            this.update();
+        } else {
+            this.renderLegacySettings();
+        }
+    }
+
+    private renderLegacySettings(): void {
         const { containerEl } = this;
         if (!containerEl) {
             this.debug('SettingsTab display called without container element');
@@ -123,11 +210,11 @@ export class SettingsTab extends PluginSettingTab {
         new Setting(containerEl).setName('API').setHeading();
 
         // Provider 선택 섹션
-        const providerContainer = containerEl.createEl('div', { cls: 'provider-selection' });
+        const providerContainer = containerEl.createDiv({ cls: 'provider-selection' });
         this.createProviderSelection(providerContainer);
 
         // Provider별 설정 컨테이너
-        const settingsContainer = containerEl.createEl('div', { cls: 'sn-provider-settings' });
+        const settingsContainer = containerEl.createDiv({ cls: 'sn-provider-settings' });
 
         // 선택된 Provider에 따라 동적으로 설정 표시
         const currentProvider = this.plugin.settings.provider || 'auto';
@@ -198,7 +285,7 @@ export class SettingsTab extends PluginSettingTab {
         }
 
         // Provider 설명
-        const infoEl = containerEl.createEl('div', { cls: 'provider-info' });
+        const infoEl = containerEl.createDiv({ cls: 'provider-info' });
         infoEl.addClass('sn-info-box');
         this.updateProviderInfo(infoEl, this.plugin.settings.provider || 'auto');
     }
@@ -339,7 +426,7 @@ export class SettingsTab extends PluginSettingTab {
         containerEl.empty();
 
         // Deepgram 전용 컨테이너 생성
-        const deepgramContainer = containerEl.createEl('div', {
+        const deepgramContainer = containerEl.createDiv({
             cls: 'sn-deepgram-settings-container',
         });
 
@@ -355,7 +442,7 @@ export class SettingsTab extends PluginSettingTab {
         } catch (error) {
             console.error('Error rendering Deepgram settings:', error);
             deepgramContainer.createEl('p', {
-                text: 'Error loading deepgram settings.',
+                text: 'Error loading Deepgram settings.',
                 cls: 'mod-warning',
             });
         }
@@ -608,7 +695,7 @@ export class SettingsTab extends PluginSettingTab {
             .addButton((button) =>
                 button
                     .setButtonText('Reset')
-                    .setWarning()
+                    .setClass('mod-warning')
                     .onClick(() => {
                         new ConfirmationModal(
                             this.app,
@@ -623,7 +710,7 @@ export class SettingsTab extends PluginSettingTab {
                                 await this.plugin.saveSettings();
 
                                 // Refresh the display
-                                this.display();
+                                this.refreshSettings();
                                 new Notice('Settings reset to defaults');
                             }
                         ).open();

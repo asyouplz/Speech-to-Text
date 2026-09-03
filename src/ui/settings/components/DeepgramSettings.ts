@@ -1,3 +1,4 @@
+import { withCompatibleSliderValue } from '../settingDefinitions';
 import { Setting, Notice } from 'obsidian';
 import type SpeechToTextPlugin from '../../../main';
 import {
@@ -580,14 +581,14 @@ export class DeepgramSettings {
             .setName('Maximum chunk size')
             .setDesc('Maximum size per chunk in megabytes (recommended: 50 megabytes)')
             .addSlider((slider) => {
-                slider
-                    .setLimits(10, 100, 10)
-                    .setValue(this.plugin.settings.maxChunkSizeMB ?? 50)
-                    .setDynamicTooltip()
-                    .onChange(async (value: number) => {
-                        this.plugin.settings.maxChunkSizeMB = value;
-                        await this.plugin.saveSettings();
-                    });
+                withCompatibleSliderValue(
+                    slider
+                        .setLimits(10, 100, 10)
+                        .setValue(this.plugin.settings.maxChunkSizeMB ?? 50)
+                ).onChange(async (value: number) => {
+                    this.plugin.settings.maxChunkSizeMB = value;
+                    await this.plugin.saveSettings();
+                });
             });
 
         // Add class for conditional display
@@ -631,7 +632,7 @@ export class DeepgramSettings {
      */
     private renderCostEstimation(): void {
         const costContainer = this.uiBuilder.createCostEstimationContainer();
-        this.estimatedCostEl = costContainer.createEl('div', {
+        this.estimatedCostEl = costContainer.createDiv({
             cls: UI_CONSTANTS.CLASSES.COST_DETAILS,
         });
         this.updateCostEstimation();
@@ -724,7 +725,7 @@ export class DeepgramSettings {
         button.setButtonText('Valid ✓');
         button.removeCta();
 
-        setTimeout(() => {
+        window.setTimeout(() => {
             button.setButtonText(UI_CONSTANTS.MESSAGES.VALIDATION_BUTTON);
             button.setCta();
             button.setDisabled(false);
@@ -738,7 +739,7 @@ export class DeepgramSettings {
         this.logger.error('Validation error', error);
         new Notice(UI_CONSTANTS.MESSAGES.VALIDATION_ERROR);
         button.setButtonText(UI_CONSTANTS.MESSAGES.VALIDATION_BUTTON);
-        button.setWarning();
+        button.setClass('mod-warning');
         button.setDisabled(false);
     }
 
@@ -757,7 +758,7 @@ export class DeepgramSettings {
         // 기능 토글 활성화/비활성화
         const toggles = this.containerEl.querySelectorAll('.checkbox-container input');
         toggles.forEach((toggle: Element) => {
-            if (toggle instanceof HTMLInputElement) {
+            if (toggle.instanceOf(HTMLInputElement)) {
                 toggle.disabled = !hasApiKey || !this.selectedModel;
             }
         });

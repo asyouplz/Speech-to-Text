@@ -184,8 +184,7 @@ export class TranscriberFactoryRefactored {
         return {
             defaultProvider: settings.defaultProvider || 'whisper',
             autoSelect: settings.autoSelect || false,
-            selectionStrategy:
-                (settings.selectionStrategy as SelectionStrategy) || SelectionStrategy.MANUAL,
+            selectionStrategy: settings.selectionStrategy || SelectionStrategy.MANUAL,
             fallbackEnabled: settings.fallbackEnabled !== false,
 
             whisper: this.loadProviderConfig('whisper', settings),
@@ -632,7 +631,7 @@ class PluginSettingsManagerAdapter implements ISettingsManager {
 
     private extractProviderConfig(raw: unknown): Partial<ProviderConfig> {
         if (raw && typeof raw === 'object') {
-            return raw as Partial<ProviderConfig>;
+            return raw;
         }
         return {};
     }

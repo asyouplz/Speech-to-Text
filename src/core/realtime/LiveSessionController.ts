@@ -36,7 +36,7 @@ export class LiveSessionController {
     private transcriptIncomplete = false;
     private recording = false;
     private recorded = false;
-    private timer: ReturnType<typeof setInterval> | null = null;
+    private timer: number | null = null;
     private checkpoint: Promise<void> | null = null;
     private startedAt = 0;
 
@@ -77,7 +77,7 @@ export class LiveSessionController {
             this.recording = true;
             this.startedAt = Date.now();
             this.snapshot.status = 'Recording and transcribing';
-            this.timer = setInterval(() => {
+            this.timer = window.setInterval(() => {
                 if (Date.now() - this.startedAt >= this.maxMinutes * 60000) {
                     if (this.onTimeLimit) this.onTimeLimit();
                     else void this.stop().catch(() => undefined);
@@ -141,7 +141,7 @@ export class LiveSessionController {
     stop(): Promise<void> {
         if (this.ending) return this.ending;
         this.cancelled = true;
-        if (this.timer) clearInterval(this.timer);
+        if (this.timer) window.clearInterval(this.timer);
         this.timer = null;
         if (!this.recording || this.interrupted) {
             this.realtime.close();
