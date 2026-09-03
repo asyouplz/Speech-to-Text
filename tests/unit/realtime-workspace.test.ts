@@ -234,6 +234,46 @@ describe('live workspace integration', () => {
         });
     });
 
+    test.each(['checkpoint', 'note', 'final state'])(
+        'preserves the original %s failure as the cause of a retryable save error',
+        async (stage) => {
+            const { workspace, store, rawStore, writer, post } = fixture();
+            await workspace.recover(store);
+            const original = Object.assign(new Error('storage adapter diagnostic'), {
+                code: 'ENOSPC',
+            });
+            if (stage === 'note') writer.mockRejectedValueOnce(original);
+            else {
+                const save = rawStore.save.getMockImplementation()!;
+                let rejected = false;
+                rawStore.save.mockImplementation(async (value) => {
+                    const isTarget =
+                        stage === 'checkpoint'
+                            ? value.status === 'Saving speaker transcript'
+                            : value.status === 'Speaker transcript saved';
+                    if (!rejected && isTarget) {
+                        rejected = true;
+                        throw original;
+                    }
+                    await save(value);
+                });
+            }
+            const failure: unknown = await workspace
+                .processSpeakers()
+                .catch((error: unknown) => error);
+            expect(failure).toBeInstanceOf(Error);
+            expect((failure as Error).cause).toBe(original);
+            expect((failure as Error).message).toContain('Retry saving');
+            expect(workspace.snapshot).toMatchObject({
+                status: 'Save needs attention',
+                speakerOutputPending: true,
+            });
+            await workspace.retrySave();
+            expect(post).toHaveBeenCalledTimes(1);
+            expect(workspace.snapshot?.status).toBe('Speaker transcript saved');
+        }
+    );
+
     test('retains a received result in memory when state writes fail and saves it without another upload', async () => {
         const { workspace, store, rawStore, writer, post, settings } = fixture();
         await workspace.recover(store);
@@ -272,6 +312,7 @@ describe('live workspace integration', () => {
             finalText: 'speaker text',
             postProcess: 'complete',
             speakerOutputPending: false,
+            status: 'Speaker transcript saved',
         });
         expect(post).toHaveBeenCalledTimes(1);
         expect(writer).toHaveBeenLastCalledWith(
@@ -299,23 +340,39 @@ describe('live workspace integration', () => {
         expect(workspace.snapshot?.status).toBe('Speaker transcript saved');
     });
 
-    test('retrying a failed audio recovery reconstructs audio before saving a retained speaker result', async () => {
-        const { workspace, store, rawStore, writer, post, plugin, settings } = fixture();
-        await workspace.recover(store);
-        writer.mockRejectedValueOnce(new Error('note unavailable'));
-        await expect(workspace.processSpeakers()).rejects.toThrow();
-        workspace.dispose();
-        const restarted = new RealtimeWorkspace(plugin as unknown as Plugin, () => settings);
-        rawStore.finalizeAudio.mockRejectedValueOnce(new Error('audio disk unavailable'));
-        await expect(restarted.recover(store)).rejects.toThrow('audio disk unavailable');
-        expect(restarted.snapshot).toMatchObject({ audioSaved: false, speakerOutputPending: true });
-        const writesBeforeRetry = writer.mock.calls.length;
-        await restarted.retrySave();
-        expect(rawStore.finalizeAudio).toHaveBeenCalledTimes(3);
-        expect(writer).toHaveBeenCalledTimes(writesBeforeRetry + 1);
-        expect(restarted.snapshot).toMatchObject({ audioSaved: true, speakerOutputPending: false });
-        expect(post).toHaveBeenCalledTimes(1);
-    });
+    test.each([false, true])(
+        'retrying audio recovery reports the saved speaker result (partial: %s)',
+        async (partial) => {
+            const { workspace, store, rawStore, writer, post, plugin, settings } = fixture();
+            await workspace.recover(store);
+            if (partial)
+                post.mockResolvedValue({ provider: 'deepgram', text: 'partial speaker text' });
+            writer.mockRejectedValueOnce(new Error('note unavailable'));
+            await expect(workspace.processSpeakers()).rejects.toThrow();
+            workspace.dispose();
+            const restarted = new RealtimeWorkspace(plugin as unknown as Plugin, () => settings);
+            rawStore.finalizeAudio.mockRejectedValueOnce(new Error('audio disk unavailable'));
+            await expect(restarted.recover(store)).rejects.toThrow('audio disk unavailable');
+            expect(restarted.snapshot).toMatchObject({
+                audioSaved: false,
+                speakerOutputPending: true,
+            });
+            const writesBeforeRetry = writer.mock.calls.length;
+            await restarted.retrySave();
+            expect(rawStore.finalizeAudio).toHaveBeenCalledTimes(3);
+            expect(writer).toHaveBeenCalledTimes(writesBeforeRetry + 1);
+            expect(restarted.snapshot).toMatchObject({
+                audioSaved: true,
+                speakerOutputPending: false,
+                postProcess: partial ? 'partial' : 'complete',
+                status: partial
+                    ? 'Speaker transcript saved with incomplete speaker information'
+                    : 'Speaker transcript saved',
+            });
+            expect((await store.load())?.status).toBe(restarted.snapshot?.status);
+            expect(post).toHaveBeenCalledTimes(1);
+        }
+    );
 
     test('does not call any provider when the Deepgram key is missing', async () => {
         const { workspace, store, settings, post } = fixture();

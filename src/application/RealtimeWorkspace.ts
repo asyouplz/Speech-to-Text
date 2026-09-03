@@ -252,7 +252,9 @@ export class RealtimeWorkspace {
             const recovered = {
                 ...snapshot,
                 speakerOutputPending: false,
-                status: 'Recovered saved recording',
+                status: snapshot.speakerOutputPending
+                    ? this.getSpeakerSavedStatus(snapshot)
+                    : 'Recovered saved recording',
             };
             await new SessionNoteWriter(this.plugin.app.vault, store).write(recovered);
             await store.save(recovered);
@@ -365,23 +367,27 @@ export class RealtimeWorkspace {
             const saved = {
                 ...pending,
                 speakerOutputPending: false,
-                status:
-                    pending.postProcess === 'complete'
-                        ? 'Speaker transcript saved'
-                        : 'Speaker transcript saved with incomplete speaker information',
+                status: this.getSpeakerSavedStatus(pending),
             };
             await new SessionNoteWriter(this.plugin.app.vault, store).write(saved);
             await store.save(saved);
             this.publish(saved);
-        } catch {
+        } catch (error) {
             pending.status = 'Save needs attention';
             // Keep the in-memory result even when both checkpoint attempts fail.
             await store.save(pending).catch(() => undefined);
             this.publish(pending);
             throw new Error(
-                'Speaker transcript could not be saved. Keep this session open and use Retry saving.'
+                'Speaker transcript could not be saved. Keep this session open and use Retry saving.',
+                { cause: error }
             );
         }
+    }
+
+    private getSpeakerSavedStatus(snapshot: LiveSnapshot): string {
+        return snapshot.postProcess === 'complete'
+            ? 'Speaker transcript saved'
+            : 'Speaker transcript saved with incomplete speaker information';
     }
 
     async openNote(): Promise<void> {
