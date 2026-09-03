@@ -217,9 +217,13 @@ const DEFAULT_CONFIG = {
 import { DeepgramLogger } from '../ui/settings/helpers/DeepgramLogger';
 import deepgramModelsConfigJson from '../../config/deepgram-models.json';
 
-// Safe import with fallback
-const deepgramModelsConfig: typeof DEFAULT_CONFIG =
-    (deepgramModelsConfigJson as unknown as typeof DEFAULT_CONFIG) ?? DEFAULT_CONFIG;
+interface DeepgramRegistryConfig {
+    models: Record<string, unknown>;
+    features: Record<string, unknown>;
+}
+
+// Individual entries are checked by isValidModel/isValidFeature before use.
+const deepgramModelsConfig: DeepgramRegistryConfig = deepgramModelsConfigJson ?? DEFAULT_CONFIG;
 
 /**
  * Deepgram 모델 정보 인터페이스
@@ -339,7 +343,7 @@ export class DeepgramModelRegistry {
     /**
      * 모델 로드
      */
-    private loadModels(config: typeof DEFAULT_CONFIG): void {
+    private loadModels(config: DeepgramRegistryConfig): void {
         if (!config.models || typeof config.models !== 'object') {
             this.logger.warn('No models in configuration');
             return;
@@ -363,7 +367,7 @@ export class DeepgramModelRegistry {
     /**
      * 기능 로드
      */
-    private loadFeatures(config: typeof DEFAULT_CONFIG): void {
+    private loadFeatures(config: DeepgramRegistryConfig): void {
         if (!config.features || typeof config.features !== 'object') {
             this.logger.warn('No features in configuration');
             return;

@@ -331,8 +331,9 @@ export class MemoryProfiler {
      */
     private triggerCleanup(): void {
         // Chrome의 경우 gc() 함수 사용 가능 (--expose-gc 플래그 필요)
-        if (typeof window.gc === 'function') {
-            window.gc?.();
+        const collectGarbage: unknown = Reflect.get(window, 'gc');
+        if (typeof collectGarbage === 'function') {
+            (collectGarbage as () => void).call(window);
             if (isDevelopmentBuild) {
                 console.debug('Garbage collection triggered');
             }
