@@ -152,6 +152,7 @@ docs/
 !AGENTS.ko.md
 !CODE_OF_CONDUCT.md
 !RELEASING.md
+!CLAUDE.md
 
 # Requirement documents
 requirment*.md
@@ -183,7 +184,6 @@ typecheck_output.txt
 AGENTS.ko.md
 AGENTS.md
 CODE_OF_CONDUCT.md
-CLAUDE.md
 CHANGELOG.md
 SECURITY.md
 
