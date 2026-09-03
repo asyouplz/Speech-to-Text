@@ -628,8 +628,8 @@ export class FormatOptionsModal extends Modal {
      */
     private updateNewNoteOptions(): void {
         // Advanced 탭 재렌더링
-        const advancedTab = document.querySelectorAll('.format-tab-content')[2];
-        if (advancedTab.instanceOf(HTMLElement)) {
+        const advancedTab = this.contentEl.querySelectorAll('.format-tab-content')[2];
+        if (advancedTab?.instanceOf(HTMLElement)) {
             this.createAdvancedTab(advancedTab);
         }
     }

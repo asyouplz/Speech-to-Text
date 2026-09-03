@@ -270,7 +270,7 @@ export class UIComponentFactory {
 
                 e.preventDefault();
                 const newTab = tabList.querySelectorAll('.sn-tab-button')[newIndex];
-                if (newTab.instanceOf(HTMLElement)) {
+                if (newTab?.instanceOf(HTMLElement)) {
                     newTab.click();
                     newTab.focus();
                 }
