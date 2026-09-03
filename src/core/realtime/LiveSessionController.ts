@@ -107,13 +107,28 @@ export class LiveSessionController {
 
     disconnected(): void {
         if (this.cancelled) return;
+        // recording describes local capture. The closed live adapter ignores further PCM frames.
         this.transcriptIncomplete = true;
         const seconds = this.startedAt
             ? Math.max(0, Math.floor((Date.now() - this.startedAt) / 1000))
             : 0;
-        this.snapshot.warning = `Live transcription disconnected around ${seconds}s into the recording. Later audio is only in the local recording.`;
+        this.snapshot.warning = [
+            this.snapshot.warning,
+            `Live transcription disconnected around ${seconds}s into the recording. Later audio is only in the local recording.`,
+        ]
+            .filter(Boolean)
+            .join('\n');
         if (this.recording) this.snapshot.status = 'Recording locally; live text interrupted';
         this.emit();
+    }
+
+    recordingSizeWarning(): boolean {
+        if (this.cancelled) return false;
+        const warning =
+            'Recording has reached 48 MiB and is approaching the 64 MiB save limit. Stop and save soon.';
+        this.snapshot.warning = [this.snapshot.warning, warning].filter(Boolean).join('\n');
+        this.emit();
+        return true;
     }
 
     recordingFailed(): void {

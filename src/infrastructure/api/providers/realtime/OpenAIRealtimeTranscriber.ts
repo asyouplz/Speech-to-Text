@@ -107,6 +107,7 @@ export class OpenAIRealtimeTranscriber implements RealtimeTranscriber {
     append(samples: Float32Array): void {
         if (!this.ready || this.closed || this.finishPromise) return;
         // Bound browser-owned queued audio to approximately two seconds of PCM/base64.
+        // Beyond this window, keep only local recording; dropping live frames would hide a gap.
         if (!this.socket || this.socket.bufferedAmount > 128000) {
             this.fail();
             return;

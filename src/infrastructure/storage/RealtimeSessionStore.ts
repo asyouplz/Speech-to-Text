@@ -1,9 +1,9 @@
 import type { DataAdapter } from 'obsidian';
 import { isWebmSignature } from '../../utils/audioSignature';
 import type { SessionMetadata, SessionSnapshot } from '../../core/realtime/types';
+import { MAX_RECORDING_BYTES } from '../../core/realtime/recordingLimits';
 
 export const SESSION_ROOT = 'Recordings/SpeechNote';
-const MAX_RECORDING_BYTES = 64 * 1024 * 1024;
 
 type Storage = Pick<
     DataAdapter,
@@ -99,7 +99,7 @@ export class RealtimeSessionStore {
             const bytes = await this.adapter.readBinary(path);
             size += bytes.byteLength;
             if (!bytes.byteLength || size > MAX_RECORDING_BYTES) {
-                throw new Error('Recording is empty or exceeds the 64 MB recovery limit');
+                throw new Error('Recording is empty or exceeds the 64 MiB recovery limit');
             }
             buffers.push(bytes);
         }

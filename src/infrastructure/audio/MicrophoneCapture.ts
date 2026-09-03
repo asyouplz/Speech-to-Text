@@ -40,6 +40,7 @@ export class MicrophoneCapture {
         };
         const source = context.createMediaStreamSource(this.stream);
         const sink = context.createGain();
+        // Keep the processing graph connected while muting its output before connection.
         sink.gain.value = 0;
         source.connect(node);
         node.connect(sink);

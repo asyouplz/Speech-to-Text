@@ -3,6 +3,7 @@ import { DEFAULT_DIARIZATION_CONFIG } from '../../infrastructure/api/providers/d
 import type { TranscriptionResponse } from '../../infrastructure/api/providers/ITranscriber';
 import type { ILogger } from '../../types';
 import { isWebmSignature } from '../../utils/audioSignature';
+import { MAX_RECORDING_BYTES } from './recordingLimits';
 
 /** Uses Deepgram directly, so missing credentials cannot silently select another provider. */
 export class RealtimePostProcessor {
@@ -15,8 +16,8 @@ export class RealtimePostProcessor {
         language: string
     ): Promise<TranscriptionResponse> {
         if (!apiKey.trim()) throw new Error('Set a Deepgram API key before speaker transcription');
-        if (audio.byteLength < 4 || audio.byteLength > 64 * 1024 * 1024) {
-            throw new Error('Recording is empty or exceeds the 64 MB limit');
+        if (audio.byteLength < 4 || audio.byteLength > MAX_RECORDING_BYTES) {
+            throw new Error('Recording is empty or exceeds the 64 MiB limit');
         }
         const header = new Uint8Array(audio, 0, 4);
         if (!isWebmSignature(header)) {

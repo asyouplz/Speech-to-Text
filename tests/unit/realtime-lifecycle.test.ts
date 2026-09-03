@@ -43,6 +43,31 @@ function fixture() {
 describe('live session lifetime', () => {
     afterEach(() => jest.useRealTimers());
 
+    test.each([true, false])(
+        'size warning and disconnect remain visible in either order (%s)',
+        async (sizeFirst) => {
+            const { run, store } = fixture();
+            await run.start();
+            if (sizeFirst) run.recordingSizeWarning();
+            run.disconnected();
+            if (!sizeFirst) run.recordingSizeWarning();
+            expect(run.snapshot.warning).toContain('48 MiB');
+            expect(run.snapshot.warning).toContain('disconnected');
+            expect(run.snapshot.status).toBe('Recording locally; live text interrupted');
+            await run.stop();
+            expect(store.save).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    warning: expect.stringContaining('48 MiB'),
+                    audioSaved: true,
+                    complete: false,
+                })
+            );
+            const savedWarning = run.snapshot.warning;
+            expect(run.recordingSizeWarning()).toBe(false);
+            expect(run.snapshot.warning).toBe(savedWarning);
+        }
+    );
+
     test('checkpoint failure during final transcription does not close the socket or lose completion', async () => {
         jest.useFakeTimers();
         const { run, store, realtime } = fixture();

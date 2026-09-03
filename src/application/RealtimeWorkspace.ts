@@ -119,7 +119,14 @@ export class RealtimeWorkspace {
             const microphone = new MicrophoneCapture();
             const recorder: LocalRecorder = new LocalRecorder(
                 (index, bytes) => store.writeChunk(index, bytes),
-                () => run.recordingFailed()
+                () => run.recordingFailed(),
+                () => {
+                    if (run.recordingSizeWarning() && !this.disposed)
+                        new Notice(
+                            'Recording is approaching the 64 MiB save limit. Stop and save soon.',
+                            10000
+                        );
+                }
             );
             const realtime: OpenAIRealtimeTranscriber = new OpenAIRealtimeTranscriber(
                 apiKey,

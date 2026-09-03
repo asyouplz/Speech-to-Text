@@ -1,3 +1,5 @@
+import { RECORDING_WARNING_BYTES } from '../../core/realtime/recordingLimits';
+
 type RecorderFactory = (stream: MediaStream, options: MediaRecorderOptions) => MediaRecorder;
 
 /** Each MediaRecorder event is persisted immediately, independently of final file assembly. */
@@ -9,10 +11,13 @@ export class LocalRecorder {
     private stopped: Promise<void> = Promise.resolve();
     private stopRequested = false;
     private failure: unknown;
+    private totalBytes = 0;
+    private sizeWarningSent = false;
 
     constructor(
         private writeChunk: (index: number, bytes: ArrayBuffer) => Promise<void>,
         private onFailure: () => void,
+        private onSizeWarning: () => void = () => undefined,
         private factory: RecorderFactory = (stream, options) => new MediaRecorder(stream, options)
     ) {}
 
@@ -33,6 +38,16 @@ export class LocalRecorder {
             if (!event.data.size) return;
             this.pending.set(this.index++, event.data);
             this.enqueueWrites();
+            // Count every captured chunk once, including chunks already written to disk.
+            this.totalBytes += event.data.size;
+            if (
+                !this.stopRequested &&
+                !this.sizeWarningSent &&
+                this.totalBytes >= RECORDING_WARNING_BYTES
+            ) {
+                this.sizeWarningSent = true;
+                this.onSizeWarning();
+            }
             if (
                 [...this.pending.values()].reduce((size, blob) => size + blob.size, 0) >
                 8 * 1024 * 1024

@@ -67,6 +67,7 @@ describe('microphone resource boundaries', () => {
         const recorder = new LocalRecorder(
             jest.fn(),
             jest.fn(),
+            jest.fn(),
             () => fake as unknown as MediaRecorder
         );
         expect(() => recorder.start({} as MediaStream, 'audio/webm')).toThrow('unsupported');

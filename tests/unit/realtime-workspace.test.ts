@@ -217,6 +217,32 @@ describe('live workspace integration', () => {
         expect(post).not.toHaveBeenCalled();
     });
 
+    test('unload while a provider is running prevents late text from being published or written', async () => {
+        const { workspace, store, writer, post } = fixture();
+        await workspace.recover(store);
+        let complete!: (result: Awaited<ReturnType<RealtimePostProcessor['transcribe']>>) => void;
+        let markStarted!: () => void;
+        const started = new Promise<void>((resolve) => {
+            markStarted = resolve;
+        });
+        post.mockImplementationOnce(
+            () =>
+                new Promise((resolve) => {
+                    complete = resolve;
+                    markStarted();
+                })
+        );
+        const processing = workspace.processSpeakers();
+        await started;
+        workspace.dispose();
+        complete({ provider: 'deepgram', text: 'late text' });
+        await processing;
+        expect(writer).toHaveBeenCalledTimes(1);
+        expect(workspace.snapshot?.finalText).toBe('');
+        expect((await store.load())?.finalText).toBe('');
+        expect(workspace.snapshot?.postProcess).not.toBe('complete');
+    });
+
     test('a failed provider leaves a retriable snapshot with the original recording', async () => {
         const { workspace, store, post } = fixture();
         await workspace.recover(store);

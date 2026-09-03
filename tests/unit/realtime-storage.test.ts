@@ -99,6 +99,34 @@ describe('durable recording storage', () => {
         await expect(store.writeChunk(0, new Uint8Array([99]).buffer)).rejects.toThrow('different');
     });
 
+    test.each([0, 1])(
+        'assembles 64 MiB plus %i extra bytes only within the size limit',
+        async (extra) => {
+            const { store, adapter, files } = storageFixture();
+            const first = new Uint8Array(64 * 1024 * 1024);
+            first.set(new Uint8Array(bytes));
+            first[first.length - 1] = 7;
+            await store.create();
+            await store.writeChunk(0, first.buffer);
+            if (extra) await store.writeChunk(1, new Uint8Array([8]).buffer);
+            adapter.writeBinary.mockClear();
+            if (extra) {
+                // An over-limit retry must also preserve an earlier assembled file.
+                files.set(store.audioPath, bytes);
+                await expect(store.finalizeAudio()).rejects.toThrow('64 MiB');
+                expect(adapter.writeBinary).not.toHaveBeenCalled();
+                expect(files.get(store.audioPath)).toBe(bytes);
+            } else {
+                await expect(store.finalizeAudio()).resolves.toBe(store.audioPath);
+                const result = new Uint8Array(files.get(store.audioPath) as ArrayBuffer);
+                expect(result.byteLength).toBe(64 * 1024 * 1024);
+                expect(result.slice(0, 6)).toEqual(new Uint8Array(bytes));
+                expect(result[result.length - 1]).toBe(7);
+            }
+            expect([...files.keys()].filter((p) => p.endsWith('.part'))).toHaveLength(1 + extra);
+        }
+    );
+
     test('repeated checkpoint failures never overwrite the last valid checkpoint slot', async () => {
         const { store, files, adapter, metadata } = storageFixture();
         await store.create();
@@ -139,12 +167,57 @@ function recorderFixture(write: (index: number, bytes: ArrayBuffer) => Promise<v
         }),
     };
     const failed = jest.fn();
-    const recorder = new LocalRecorder(write, failed, () => fake as unknown as MediaRecorder);
+    const sizeWarning = jest.fn();
+    const recorder = new LocalRecorder(
+        write,
+        failed,
+        sizeWarning,
+        () => fake as unknown as MediaRecorder
+    );
     recorder.start({} as MediaStream, 'audio/webm');
-    return { recorder, fake, failed };
+    return { recorder, fake, failed, sizeWarning };
 }
 
 describe('local recorder', () => {
+    test('warns once at 48 MiB even when each chunk is already saved, without counting retries', async () => {
+        let persisted!: () => void;
+        const write = jest.fn(async () => persisted());
+        const { recorder, fake, failed, sizeWarning } = recorderFixture(write);
+        const chunk = new NodeBlob([new Uint8Array(6 * 1024 * 1024)]) as unknown as Blob;
+        for (let i = 1; i <= 9; i++) {
+            const saved = new Promise<void>((resolve) => {
+                persisted = resolve;
+            });
+            fake.ondataavailable?.({ data: chunk });
+            await saved;
+            await Promise.resolve();
+            expect(sizeWarning).toHaveBeenCalledTimes(i >= 8 ? 1 : 0);
+            expect(fake.state).toBe('recording');
+        }
+        await recorder.stop();
+        await recorder.retrySave();
+        expect(sizeWarning).toHaveBeenCalledTimes(1);
+        expect(write).toHaveBeenCalledTimes(9);
+        expect(failed).not.toHaveBeenCalled();
+    });
+
+    test('does not warn to stop when the final chunk arrives after stopping', async () => {
+        let finishStop!: () => void;
+        const { recorder, fake, sizeWarning } = recorderFixture(async () => undefined);
+        fake.stop.mockImplementation(() => {
+            fake.state = 'inactive';
+            finishStop = () => fake.onstop?.();
+        });
+        recorder.requestStop();
+        fake.ondataavailable?.({
+            data: new NodeBlob([new Uint8Array(48 * 1024 * 1024)]) as unknown as Blob,
+        });
+        finishStop();
+        // The separate pending-buffer guard still applies to a large final chunk.
+        await expect(recorder.stop()).rejects.toThrow('retry');
+        expect(sizeWarning).not.toHaveBeenCalled();
+    });
+
     test('persists a chunk while recording is still running', async () => {
         const done: ArrayBuffer[] = [];
         let persisted!: () => void;

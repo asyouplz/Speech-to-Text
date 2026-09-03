@@ -2,6 +2,52 @@ import { requestUrl } from 'obsidian';
 import { DeepgramService } from '../../src/infrastructure/api/providers/deepgram/DeepgramService';
 import { RealtimePostProcessor } from '../../src/core/realtime/RealtimePostProcessor';
 
+test('cancellation while a request is in flight discards its late successful response', async () => {
+    const bytes = new Uint8Array(2048);
+    bytes.set([0x1a, 0x45, 0xdf, 0xa3]);
+    let completeRequest!: (value: unknown) => void;
+    let markStarted!: () => void;
+    const started = new Promise<void>((resolve) => {
+        markStarted = resolve;
+    });
+    (requestUrl as jest.Mock).mockImplementation(
+        () =>
+            new Promise((resolve) => {
+                completeRequest = resolve;
+                markStarted();
+            })
+    );
+    const parse = jest.spyOn(DeepgramService.prototype, 'parseResponse');
+    try {
+        const processor = new RealtimePostProcessor();
+        const result = processor.transcribe(bytes.buffer, 'key', 'ko');
+        const rejected = expect(result).rejects.toMatchObject({ code: 'CANCELLED' });
+        await started;
+        processor.cancel();
+        completeRequest({
+            status: 200,
+            headers: {},
+            json: {
+                metadata: { duration: 1, channels: 1 },
+                results: {
+                    channels: [
+                        {
+                            alternatives: [
+                                { transcript: 'late text', confidence: 0.99, words: [] },
+                            ],
+                        },
+                    ],
+                },
+            },
+        });
+        await rejected;
+        expect(parse).not.toHaveBeenCalled();
+        expect(requestUrl).toHaveBeenCalledTimes(1);
+    } finally {
+        parse.mockRestore();
+    }
+});
+
 test('cancellation during Deepgram backoff prevents another upload', async () => {
     jest.useFakeTimers();
     const logger = { debug: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn() };
