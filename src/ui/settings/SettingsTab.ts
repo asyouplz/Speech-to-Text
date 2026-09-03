@@ -2,6 +2,7 @@
 
 import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
 import type SpeechToTextPlugin from '../../main';
+import { displayRealtimeSettings } from '../realtime/RealtimeSettings';
 import { DeepgramSettings } from './components/DeepgramSettings';
 import { SelectionStrategy } from '../../infrastructure/api/providers/ITranscriber';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
@@ -80,6 +81,7 @@ export class SettingsTab extends PluginSettingTab {
             // General Settings Section
             this.debug('Creating General section...');
             this.createGeneralSection(containerEl);
+            displayRealtimeSettings(containerEl, this.plugin);
             this.debug('General section created');
 
             // Audio Settings Section

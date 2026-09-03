@@ -1,4 +1,5 @@
 import { TFile } from 'obsidian';
+import { WEBM_SIGNATURE } from '../../utils/audioSignature';
 
 export interface ValidationResult {
     valid: boolean;
@@ -75,7 +76,7 @@ export class FileValidator {
             },
             webm: {
                 mimeTypes: ['audio/webm', 'video/webm'],
-                magicBytes: [0x1a, 0x45, 0xdf, 0xa3],
+                magicBytes: [...WEBM_SIGNATURE],
                 magicOffset: 0,
             },
             ogg: {

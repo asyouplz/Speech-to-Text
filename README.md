@@ -20,6 +20,8 @@ Convert audio recordings to text directly in Obsidian using multiple AI provider
 
 # English
 
+Development preview: [live microphone transcription and recovery](docs/REALTIME_TRANSCRIPTION.md) (Korean guide). This feature is under development and is not included in the published 1.0.20 release.
+
 ## Features
 
 ### 🎙️ Multi-Provider Audio Transcription
