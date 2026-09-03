@@ -33,6 +33,7 @@ export class LiveSessionController {
     private finished = false;
     private cancelled = false;
     private interrupted = false;
+    private transcriptIncomplete = false;
     private recording = false;
     private recorded = false;
     private timer: ReturnType<typeof setInterval> | null = null;
@@ -89,7 +90,7 @@ export class LiveSessionController {
             if (!this.cancelled) {
                 this.snapshot.warning =
                     'Live transcription could not start. Check microphone access and OpenAI settings.';
-                await this.stop(true);
+                await this.interrupt();
             }
             throw error;
         }
@@ -106,6 +107,7 @@ export class LiveSessionController {
 
     disconnected(): void {
         if (this.cancelled) return;
+        this.transcriptIncomplete = true;
         const seconds = this.startedAt
             ? Math.max(0, Math.floor((Date.now() - this.startedAt) / 1000))
             : 0;
@@ -117,23 +119,31 @@ export class LiveSessionController {
     recordingFailed(): void {
         this.snapshot.warning =
             'Recording or storage was interrupted. Use Retry saving before starting another session.';
-        void this.stop(true).catch(() => undefined);
+        // Stop intake, but let the live provider finish audio it has already received.
+        void this.stop().catch(() => undefined);
     }
 
-    stop(interrupted = false): Promise<void> {
-        this.interrupted ||= interrupted;
-        if (interrupted) this.realtime.close();
+    stop(): Promise<void> {
         if (this.ending) return this.ending;
         this.cancelled = true;
         if (this.timer) clearInterval(this.timer);
         this.timer = null;
-        if (!this.recording || interrupted) {
+        if (!this.recording || this.interrupted) {
             this.realtime.close();
             this.recorder.requestStop();
             this.microphone.close();
         }
         this.ending = this.finish();
         return this.ending;
+    }
+
+    /** Explicit shutdown may interrupt an existing drain; a storage failure must not. */
+    interrupt(): Promise<void> {
+        this.interrupted = true;
+        this.realtime.close();
+        this.recorder.requestStop();
+        this.microphone.close();
+        return this.stop();
     }
 
     private async finish(): Promise<void> {
@@ -143,9 +153,11 @@ export class LiveSessionController {
             await this.initializing;
             if (this.recording && !this.interrupted) {
                 const flushed = await this.microphone.flush();
-                if (!flushed)
+                if (!flushed) {
+                    this.transcriptIncomplete = true;
                     this.snapshot.warning =
                         'The last live audio frame was not acknowledged; check the recording.';
+                }
             }
             this.recording = false;
             this.recorder.requestStop();
@@ -162,7 +174,7 @@ export class LiveSessionController {
             if (result.status === 'fulfilled') {
                 this.snapshot.text = result.value.text;
                 this.snapshot.complete =
-                    result.value.complete && !this.snapshot.warning && !this.interrupted;
+                    result.value.complete && !this.transcriptIncomplete && !this.interrupted;
             }
             if (saved.status === 'rejected') {
                 this.snapshot.warning =
@@ -171,18 +183,15 @@ export class LiveSessionController {
                 this.snapshot.warning =
                     'Live text is incomplete. The local recording is available for recovery or speaker transcription.';
             }
-            this.snapshot.status = !this.recorded
+            const status = !this.recorded
                 ? 'Stopped before recording'
                 : this.snapshot.audioSaved
                 ? 'Recording saved'
                 : 'Save needs attention';
             await this.checkpoint;
-            await this.store.save(this.snapshot);
-            await this.writeNote(this.snapshot);
+            await this.persistOutput(status);
         } catch {
-            this.snapshot.status = 'Save needs attention';
-            this.snapshot.warning =
-                'Some output could not be saved. Keep this session open and use Retry saving.';
+            await this.markSaveFailure();
         } finally {
             this.finished = true;
             this.recording = false;
@@ -197,13 +206,33 @@ export class LiveSessionController {
         if (!this.ending) throw new Error('Stop recording before retrying a save');
         await this.ending;
         if (this.snapshot.status !== 'Save needs attention') return;
-        await this.recorder.retrySave();
-        await this.store.finalizeAudio();
-        this.snapshot.audioSaved = true;
-        this.snapshot.status = 'Recording saved';
-        await this.store.save(this.snapshot);
-        await this.writeNote(this.snapshot);
-        this.emit();
+        try {
+            await this.recorder.retrySave();
+            await this.store.finalizeAudio();
+            this.snapshot.audioSaved = true;
+            await this.persistOutput('Recording saved');
+        } catch (error) {
+            await this.markSaveFailure();
+            throw error;
+        } finally {
+            this.emit();
+        }
+    }
+
+    private async persistOutput(status: string): Promise<void> {
+        const saved = { ...this.snapshot, status };
+        // Publish success only after both outputs succeed. Note writes are idempotent on retry.
+        await this.writeNote(saved);
+        await this.store.save(saved);
+        this.snapshot.status = status;
+    }
+
+    private async markSaveFailure(): Promise<void> {
+        this.snapshot.status = 'Save needs attention';
+        this.snapshot.warning =
+            'Some output could not be saved. Keep this session open and use Retry saving.';
+        // The state disk may be the failing resource. Keep the in-memory retry state regardless.
+        await this.store.save(this.snapshot).catch(() => undefined);
     }
 
     private saveCheckpoint(): void {
@@ -211,7 +240,9 @@ export class LiveSessionController {
         this.checkpoint = this.store
             .save(this.snapshot)
             .catch(() => {
-                this.recordingFailed();
+                this.snapshot.warning =
+                    'A transcript checkpoint could not be saved; the session is stopping to save its output.';
+                void this.stop().catch(() => undefined);
             })
             .finally(() => {
                 this.checkpoint = null;

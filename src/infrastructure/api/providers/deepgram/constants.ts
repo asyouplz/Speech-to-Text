@@ -3,6 +3,8 @@
  * 매직 넘버와 하드코딩된 값들을 중앙화하여 관리
  */
 
+import { WEBM_SIGNATURE } from '../../../../utils/audioSignature';
+
 // === API 관련 상수 ===
 export const DEEPGRAM_API = {
     ENDPOINT: 'https://api.deepgram.com/v1/listen',
@@ -109,7 +111,7 @@ export const AUDIO_FORMATS = {
         FLAC: [0x66, 0x4c, 0x61, 0x43],
         OGG: [0x4f, 0x67, 0x67, 0x53],
         M4A_FTYP: [0x66, 0x74, 0x79, 0x70], // offset 4에서 시작
-        WEBM: [0x1a, 0x45, 0xdf, 0xa3],
+        WEBM: WEBM_SIGNATURE,
     },
     CONTENT_TYPES: {
         wav: 'audio/wav',

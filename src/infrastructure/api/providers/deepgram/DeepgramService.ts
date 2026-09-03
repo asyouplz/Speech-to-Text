@@ -1,6 +1,7 @@
 import { requestUrl, RequestUrlParam } from 'obsidian';
 import type { ILogger } from '../../../../types';
 import { isPlainRecord } from '../../../../types/guards';
+import { isWebmSignature } from '../../../../utils/audioSignature';
 import {
     DeepgramSpecificOptions,
     TranscriptionResponse,
@@ -119,7 +120,7 @@ class AudioValidator {
         }
 
         // WebM 파일 시그니처
-        if (view[0] === 0x1a && view[1] === 0x45 && view[2] === 0xdf && view[3] === 0xa3) {
+        if (isWebmSignature(view)) {
             return 'webm';
         }
 

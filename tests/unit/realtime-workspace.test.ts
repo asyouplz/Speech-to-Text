@@ -62,6 +62,65 @@ function fixture() {
 describe('live workspace integration', () => {
     afterEach(() => jest.restoreAllMocks());
 
+    test('a recovered note write failure is shown and Retry saving completes it without uploading', async () => {
+        const { workspace, store, writer, post } = fixture();
+        writer.mockRejectedValueOnce(new Error('note path is a folder'));
+        await expect(workspace.recover(store)).rejects.toThrow('note path is a folder');
+        expect(workspace.snapshot).toMatchObject({
+            status: 'Save needs attention',
+            audioSaved: true,
+            text: 'original live text',
+        });
+        expect(await store.load()).toMatchObject({ status: 'Save needs attention' });
+        await expect(workspace.processSpeakers()).rejects.toThrow('Retry saving');
+        await workspace.retrySave();
+        expect(writer).toHaveBeenCalledTimes(2);
+        expect(workspace.snapshot?.status).toBe('Recovered saved recording');
+        expect(post).not.toHaveBeenCalled();
+    });
+
+    test('recovery success is persisted only after the note is written', async () => {
+        const { workspace, store, writer } = fixture();
+        let write!: () => void;
+        writer.mockImplementationOnce(
+            () =>
+                new Promise<void>((resolve) => {
+                    write = resolve;
+                })
+        );
+        const recovery = workspace.recover(store);
+        for (let i = 0; i < 12; i++) await Promise.resolve();
+        expect((await store.load())?.audioSaved).toBe(false);
+        expect(workspace.snapshot?.status).toBe('Recovering saved recording');
+        write();
+        await recovery;
+        expect(await store.load()).toMatchObject({
+            audioSaved: true,
+            status: 'Recovered saved recording',
+            complete: false,
+        });
+        expect(workspace.snapshot?.warning).toContain('buffered');
+    });
+
+    test('a recovery choice made while another operation is busy reports why it cannot run', async () => {
+        const { workspace, store, writer } = fixture();
+        let write!: () => void;
+        writer.mockImplementationOnce(
+            () =>
+                new Promise<void>((resolve) => {
+                    write = resolve;
+                })
+        );
+        const recovery = workspace.recover(store);
+        for (let i = 0; i < 12; i++) await Promise.resolve();
+        await expect(workspace.chooseRecovery()).rejects.toThrow(
+            'Finish the current session first'
+        );
+        await expect(workspace.recover(store)).rejects.toThrow('Finish the current session first');
+        write();
+        await recovery;
+    });
+
     test('stopping while the panel opens prevents a late microphone session', async () => {
         const { workspace, settings, plugin, post } = fixture();
         const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'MediaRecorder');

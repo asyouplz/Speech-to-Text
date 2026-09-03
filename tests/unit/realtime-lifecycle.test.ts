@@ -42,6 +42,81 @@ function fixture() {
 
 describe('live session lifetime', () => {
     afterEach(() => jest.useRealTimers());
+
+    test('checkpoint failure during final transcription does not close the socket or lose completion', async () => {
+        jest.useFakeTimers();
+        const { run, store, realtime } = fixture();
+        await run.start();
+        let rejectCheckpoint!: (error: Error) => void;
+        store.save.mockImplementationOnce(
+            () =>
+                new Promise<void>((_, reject) => {
+                    rejectCheckpoint = reject;
+                })
+        );
+        await jest.advanceTimersByTimeAsync(1000);
+        let finish!: (result: { text: string; complete: boolean }) => void;
+        realtime.finish.mockImplementation(
+            () =>
+                new Promise((resolve) => {
+                    finish = resolve;
+                })
+        );
+        const ending = run.stop();
+        for (let i = 0; i < 10; i++) await Promise.resolve();
+        rejectCheckpoint(new Error('checkpoint write failed'));
+        for (let i = 0; i < 10; i++) await Promise.resolve();
+        const closedDuringDrain = realtime.close.mock.calls.length;
+        finish({ text: 'last words', complete: true });
+        await ending;
+        expect(closedDuringDrain).toBe(0);
+        expect(run.snapshot).toMatchObject({ text: 'last words', complete: true });
+    });
+
+    test('a note failure during retry remains visible and can be retried again', async () => {
+        const { run, writer } = fixture();
+        await run.start();
+        writer.mockRejectedValueOnce(new Error('note path is a folder'));
+        await run.stop();
+        writer.mockRejectedValueOnce(new Error('note path is still a folder'));
+        await expect(run.retrySave()).rejects.toThrow('still a folder');
+        expect(run.snapshot.status).toBe('Save needs attention');
+        await run.retrySave();
+        expect(writer).toHaveBeenCalledTimes(3);
+        expect(run.snapshot.status).toBe('Recording saved');
+    });
+
+    test('explicit unload still interrupts a pending final transcript', async () => {
+        const { run, realtime } = fixture();
+        await run.start();
+        let finish!: (result: { text: string; complete: boolean }) => void;
+        realtime.finish.mockImplementation(
+            () =>
+                new Promise((resolve) => {
+                    finish = resolve;
+                })
+        );
+        const ending = run.stop();
+        for (let i = 0; i < 10; i++) await Promise.resolve();
+        realtime.close.mockImplementation(() => finish({ text: 'partial', complete: false }));
+        expect(run.interrupt()).toBe(ending);
+        expect(realtime.close).toHaveBeenCalled();
+        await ending;
+        expect(run.snapshot.complete).toBe(false);
+    });
+
+    test('a failed snapshot write after a successful note write remains retryable', async () => {
+        const { run, writer, store } = fixture();
+        await run.start();
+        writer.mockRejectedValueOnce(new Error('note unavailable'));
+        await run.stop();
+        store.save.mockRejectedValueOnce(new Error('state disk unavailable'));
+        await expect(run.retrySave()).rejects.toThrow('state disk unavailable');
+        expect(run.snapshot.status).toBe('Save needs attention');
+        await run.retrySave();
+        expect(run.snapshot.status).toBe('Recording saved');
+        expect(writer).toHaveBeenCalledTimes(3);
+    });
     test('does not record until microphone setup and server configuration are ready', async () => {
         const { run, realtime, recorder } = fixture();
         let ready!: () => void;
@@ -100,7 +175,7 @@ describe('live session lifetime', () => {
     test('unload preserves local audio without committing more network audio', async () => {
         const { run, realtime, recorder, store } = fixture();
         await run.start();
-        await run.stop(true);
+        await run.interrupt();
         expect(recorder.stop).toHaveBeenCalled();
         expect(store.finalizeAudio).toHaveBeenCalled();
         expect(realtime.finish).not.toHaveBeenCalled();

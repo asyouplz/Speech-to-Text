@@ -2,6 +2,7 @@ import { DeepgramService } from '../../infrastructure/api/providers/deepgram/Dee
 import { DEFAULT_DIARIZATION_CONFIG } from '../../infrastructure/api/providers/deepgram/DiarizationFormatter';
 import type { TranscriptionResponse } from '../../infrastructure/api/providers/ITranscriber';
 import type { ILogger } from '../../types';
+import { isWebmSignature } from '../../utils/audioSignature';
 
 /** Uses Deepgram directly, so missing credentials cannot silently select another provider. */
 export class RealtimePostProcessor {
@@ -18,7 +19,7 @@ export class RealtimePostProcessor {
             throw new Error('Recording is empty or exceeds the 64 MB limit');
         }
         const header = new Uint8Array(audio, 0, 4);
-        if (header[0] !== 0x1a || header[1] !== 0x45 || header[2] !== 0xdf || header[3] !== 0xa3) {
+        if (!isWebmSignature(header)) {
             throw new Error('Only the saved WebM recording can be used for speaker transcription');
         }
         // The legacy service logs transcript excerpts. This path intentionally omits payload logs.

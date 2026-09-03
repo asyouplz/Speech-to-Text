@@ -1,4 +1,5 @@
 import type { DataAdapter } from 'obsidian';
+import { isWebmSignature } from '../../utils/audioSignature';
 import type { SessionMetadata, SessionSnapshot } from '../../core/realtime/types';
 
 export const SESSION_ROOT = 'Recordings/SpeechNote';
@@ -108,7 +109,7 @@ export class RealtimeSessionStore {
             result.set(new Uint8Array(bytes), offset);
             offset += bytes.byteLength;
         }
-        if (result[0] !== 0x1a || result[1] !== 0x45 || result[2] !== 0xdf || result[3] !== 0xa3) {
+        if (!isWebmSignature(result)) {
             throw new Error('The saved recording does not contain a WebM header');
         }
         // Regeneration also includes a late final chunk from an interrupted stop operation.

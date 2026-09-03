@@ -1,4 +1,5 @@
 import type { ILogger } from '../../types';
+import { WEBM_SIGNATURE } from '../../utils/audioSignature';
 
 export interface AudioValidationResult {
     isValid: boolean;
@@ -29,7 +30,7 @@ export class AudioValidator {
         m4a: [0x00, 0x00, 0x00, 0x20, 0x66, 0x74, 0x79, 0x70], // M4A container
         flac: [0x66, 0x4c, 0x61, 0x43], // fLaC
         ogg: [0x4f, 0x67, 0x67, 0x53], // OggS
-        webm: [0x1a, 0x45, 0xdf, 0xa3], // WebM
+        webm: WEBM_SIGNATURE,
     };
 
     constructor(private logger: ILogger) {}
@@ -101,7 +102,7 @@ export class AudioValidator {
     /**
      * 시그니처 매칭 확인
      */
-    private matchesSignature(data: Uint8Array, signature: number[]): boolean {
+    private matchesSignature(data: Uint8Array, signature: readonly number[]): boolean {
         if (data.length < signature.length) {
             return false;
         }

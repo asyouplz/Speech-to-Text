@@ -41,6 +41,17 @@ function fixture(authorize = jest.fn().mockResolvedValue(['realtime', 'temporary
 describe('realtime protocol', () => {
     afterEach(() => jest.useRealTimers());
 
+    test('ending without input sends no padding or commit and has no drain delay', async () => {
+        jest.useFakeTimers();
+        const { client, ws, ready } = fixture();
+        await ready();
+        await expect(client.finish()).resolves.toEqual({ text: '', complete: true });
+        expect(ws.send.mock.calls.map(([value]) => JSON.parse(value).type)).toEqual([
+            'session.update',
+        ]);
+        expect(jest.getTimerCount()).toBe(0);
+    });
+
     test('a failed final transcription retains already received partial text', () => {
         const assembler = new TranscriptAssembler();
         assembler.register('one');
