@@ -1,0 +1,873 @@
+/**
+ * 진행 상태 표시 컴포넌트 스타일
+ * WCAG 2.1 AA 준수
+ */
+
+/* ===== CSS 변수 정의 ===== */
+:root {
+    /* 색상 - WCAG AA 대비율 준수 */
+    --sn-color-primary: #5e81ac;
+    --sn-color-success: #198754;
+    --sn-color-warning: #fd7e14;
+    --sn-color-error: #dc3545;
+    --sn-color-info: #0dcaf0;
+
+    /* 배경색 */
+    --sn-bg-primary: var(--background-primary);
+    --sn-bg-secondary: var(--background-secondary);
+    --sn-bg-overlay: rgba(0, 0, 0, 0.5);
+
+    /* 텍스트 색상 */
+    --sn-text-primary: var(--text-normal);
+    --sn-text-secondary: var(--text-muted);
+    --sn-text-on-primary: #ffffff;
+
+    /* 간격 */
+    --sn-spacing-xs: 4px;
+    --sn-spacing-sm: 8px;
+    --sn-spacing-md: 16px;
+    --sn-spacing-lg: 24px;
+    --sn-spacing-xl: 32px;
+
+    /* 애니메이션 */
+    --sn-transition-fast: 150ms ease;
+    --sn-transition-normal: 300ms ease;
+    --sn-transition-slow: 500ms ease;
+}
+
+/* 다크 테마 */
+.theme-dark {
+    --sn-color-primary: #88c0d0;
+    --sn-color-success: #a3be8c;
+    --sn-color-warning: #ebcb8b;
+    --sn-color-error: #bf616a;
+    --sn-color-info: #5e81ac;
+}
+
+/* ===== 진행률 바 ===== */
+
+.sn-progress-bar {
+    width: 100%;
+}
+
+.sn-progress-bar__label {
+    margin-bottom: var(--sn-spacing-xs);
+    font-size: 0.9em;
+    color: var(--sn-text-primary);
+}
+
+.sn-progress-bar__container {
+    position: relative;
+    width: 100%;
+    height: 8px;
+    background-color: var(--background-modifier-border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.sn-progress-bar--small .sn-progress-bar__container {
+    height: 4px;
+}
+.sn-progress-bar--large .sn-progress-bar__container {
+    height: 12px;
+}
+
+.sn-progress-bar__fill {
+    height: 100%;
+    background-color: var(--sn-color-primary);
+    transition: width var(--sn-transition-normal);
+    border-radius: 4px;
+}
+
+.sn-progress-bar--success .sn-progress-bar__fill {
+    background-color: var(--sn-color-success);
+}
+.sn-progress-bar--warning .sn-progress-bar__fill {
+    background-color: var(--sn-color-warning);
+}
+.sn-progress-bar--error .sn-progress-bar__fill {
+    background-color: var(--sn-color-error);
+}
+
+/* 줄무늬 효과 */
+.sn-progress-bar__fill--striped {
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 40px 40px;
+    animation: sn-progress-striped 1s linear infinite;
+}
+
+@keyframes sn-progress-striped {
+    from {
+        background-position: 40px 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+
+/* Indeterminate 모드 */
+.sn-progress-bar__fill--indeterminate {
+    width: 30%;
+    animation: sn-progress-indeterminate 1.5s ease-in-out infinite;
+}
+
+@keyframes sn-progress-indeterminate {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(400%);
+    }
+}
+
+.sn-progress-bar__info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--sn-spacing-xs);
+    font-size: 0.85em;
+    color: var(--sn-text-secondary);
+}
+
+/* 다단계 진행률 */
+.sn-multi-step-progress {
+    width: 100%;
+}
+
+.sn-multi-step-progress__steps {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--sn-spacing-md);
+}
+
+.sn-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sn-spacing-xs);
+    flex: 1;
+    position: relative;
+}
+
+.sn-step__number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--background-modifier-border);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all var(--sn-transition-normal);
+}
+
+.sn-step__label {
+    font-size: 0.85em;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.sn-step--completed .sn-step__number {
+    background-color: var(--sn-color-success);
+    color: var(--sn-text-on-primary);
+}
+
+.sn-step--active .sn-step__number {
+    background-color: var(--sn-color-primary);
+    color: var(--sn-text-on-primary);
+    animation: sn-progress-pulse-ring 1.5s ease-in-out infinite;
+}
+
+@keyframes sn-progress-pulse-ring {
+    0% {
+        box-shadow: 0 0 0 0 rgba(94, 129, 172, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(94, 129, 172, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(94, 129, 172, 0);
+    }
+}
+
+.sn-step--error .sn-step__number {
+    background-color: var(--sn-color-error);
+    color: var(--sn-text-on-primary);
+}
+
+.sn-step-connector {
+    flex: 1;
+    height: 2px;
+    background-color: var(--background-modifier-border);
+    margin: 0 var(--sn-spacing-sm);
+}
+
+/* ===== 알림 시스템 ===== */
+
+/* 모달 알림 */
+.sn-modal-overlay--show {
+    opacity: 1;
+}
+
+.sn-modal-notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    min-width: 400px;
+    max-width: 600px;
+    background-color: var(--sn-bg-primary);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    opacity: 0;
+    transition: all var(--sn-transition-normal);
+}
+
+.sn-modal-notification--show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.sn-modal-notification__header {
+    display: flex;
+    align-items: center;
+    gap: var(--sn-spacing-sm);
+    padding: var(--sn-spacing-lg);
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.sn-modal-notification__title {
+    flex: 1;
+    margin: 0;
+    font-size: 1.2em;
+    color: var(--sn-text-primary);
+}
+
+.sn-modal-notification__close {
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 1;
+    opacity: 0.5;
+    transition: opacity var(--sn-transition-fast);
+}
+
+.sn-modal-notification__close:hover {
+    opacity: 1;
+}
+
+.sn-modal-notification__body {
+    padding: var(--sn-spacing-lg);
+    color: var(--sn-text-primary);
+    line-height: 1.6;
+}
+
+.sn-modal-notification__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--sn-spacing-sm);
+    padding: var(--sn-spacing-lg);
+    border-top: 1px solid var(--background-modifier-border);
+}
+
+.sn-modal-notification__action {
+    padding: var(--sn-spacing-sm) var(--sn-spacing-md);
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: all var(--sn-transition-fast);
+}
+
+.sn-modal-notification__action--primary {
+    background-color: var(--sn-color-primary);
+    color: var(--sn-text-on-primary);
+}
+
+.sn-modal-notification__action--secondary {
+    background-color: transparent;
+    color: var(--sn-text-primary);
+    border: 1px solid var(--background-modifier-border);
+}
+
+.sn-modal-notification__action:hover {
+    opacity: 0.9;
+}
+
+/* 상태바 알림 */
+.sn-statusbar-notification {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--sn-bg-secondary);
+    border-top: 1px solid var(--background-modifier-border);
+    transform: translateY(100%);
+    transition: transform var(--sn-transition-normal);
+    z-index: 1000;
+}
+
+.sn-statusbar-notification--show {
+    transform: translateY(0);
+}
+
+.sn-statusbar-notification__content {
+    display: flex;
+    align-items: center;
+    gap: var(--sn-spacing-sm);
+    padding: var(--sn-spacing-sm) var(--sn-spacing-md);
+}
+
+.sn-statusbar-notification__content--success {
+    border-left: 3px solid var(--sn-color-success);
+}
+
+.sn-statusbar-notification__content--error {
+    border-left: 3px solid var(--sn-color-error);
+}
+
+.sn-statusbar-notification__content--warning {
+    border-left: 3px solid var(--sn-color-warning);
+}
+
+.sn-statusbar-notification__content--info {
+    border-left: 3px solid var(--sn-color-info);
+}
+
+.sn-statusbar-notification__icon {
+    flex-shrink: 0;
+}
+
+.sn-statusbar-notification__message {
+    flex: 1;
+    color: var(--sn-text-primary);
+}
+
+.sn-statusbar-notification__action {
+    padding: var(--sn-spacing-xs) var(--sn-spacing-sm);
+    background: none;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    color: var(--sn-color-primary);
+    cursor: pointer;
+    transition: all var(--sn-transition-fast);
+}
+
+.sn-statusbar-notification__action:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+.sn-statusbar-notification__close {
+    width: 24px;
+    height: 24px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    opacity: 0.5;
+    transition: opacity var(--sn-transition-fast);
+}
+
+.sn-statusbar-notification__close:hover {
+    opacity: 1;
+}
+
+/* ===== 상태 메시지 표시 ===== */
+
+.sn-status-message-display {
+    width: 100%;
+    max-height: 400px;
+    background-color: var(--sn-bg-secondary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.sn-status-message-display__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--sn-spacing-md);
+    border-bottom: 1px solid var(--background-modifier-border);
+    background-color: var(--sn-bg-primary);
+}
+
+.sn-status-message-display__header h3 {
+    margin: 0;
+    font-size: 1em;
+    color: var(--sn-text-primary);
+}
+
+.sn-status-message-display__controls {
+    display: flex;
+    gap: var(--sn-spacing-sm);
+}
+
+.sn-status-message-display__lang-select {
+    padding: var(--sn-spacing-xs) var(--sn-spacing-sm);
+    background-color: var(--sn-bg-secondary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    color: var(--sn-text-primary);
+    cursor: pointer;
+}
+
+.sn-status-message-display__clear {
+    padding: var(--sn-spacing-xs) var(--sn-spacing-sm);
+    background-color: transparent;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    color: var(--sn-text-primary);
+    cursor: pointer;
+    transition: all var(--sn-transition-fast);
+}
+
+.sn-status-message-display__clear:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+.sn-status-message-display__messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--sn-spacing-sm);
+}
+
+.sn-status-message {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sn-spacing-sm);
+    padding: var(--sn-spacing-xs) var(--sn-spacing-sm);
+    border-radius: 4px;
+    margin-bottom: var(--sn-spacing-xs);
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all var(--sn-transition-normal);
+}
+
+.sn-status-message--show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.sn-status-message--info {
+    background-color: rgba(13, 202, 240, 0.1);
+}
+
+.sn-status-message--success {
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.sn-status-message--warning {
+    background-color: rgba(253, 126, 20, 0.1);
+}
+
+.sn-status-message--error {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.sn-status-message--progress {
+    background-color: rgba(94, 129, 172, 0.1);
+}
+
+.sn-status-message__timestamp {
+    flex-shrink: 0;
+    font-size: 0.8em;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+.sn-status-message__icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sn-status-message__text {
+    flex: 1;
+    color: var(--sn-text-primary);
+    line-height: 1.4;
+}
+
+/* ===== 통계 대시보드 ===== */
+
+.sn-statistics-dashboard {
+    width: 100%;
+    padding: var(--sn-spacing-lg);
+    background-color: var(--sn-bg-primary);
+}
+
+.sn-dashboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--sn-spacing-lg);
+}
+
+.sn-dashboard__header h2 {
+    margin: 0;
+    color: var(--sn-text-primary);
+}
+
+.sn-dashboard__controls {
+    display: flex;
+    gap: var(--sn-spacing-sm);
+}
+
+.sn-dashboard__controls button {
+    padding: var(--sn-spacing-sm) var(--sn-spacing-md);
+    background-color: transparent;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 6px;
+    color: var(--sn-text-primary);
+    cursor: pointer;
+    transition: all var(--sn-transition-fast);
+}
+
+.sn-dashboard__controls button:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+.sn-dashboard__stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--sn-spacing-md);
+    margin-bottom: var(--sn-spacing-xl);
+}
+
+.sn-stats-card {
+    display: flex;
+    align-items: center;
+    gap: var(--sn-spacing-md);
+    padding: var(--sn-spacing-md);
+    background-color: var(--sn-bg-secondary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 8px;
+    transition: all var(--sn-transition-fast);
+}
+
+.sn-stats-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sn-stats-card__icon {
+    font-size: 2em;
+}
+
+.sn-stats-card__content {
+    flex: 1;
+}
+
+.sn-stats-card__value {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--sn-text-primary);
+}
+
+.sn-stats-card__label {
+    font-size: 0.9em;
+    color: var(--sn-text-secondary);
+}
+
+.sn-stats-card--success {
+    border-left: 3px solid var(--sn-color-success);
+}
+
+.sn-stats-card--error {
+    border-left: 3px solid var(--sn-color-error);
+}
+
+.sn-stats-card--info {
+    border-left: 3px solid var(--sn-color-info);
+}
+
+.sn-dashboard__charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--sn-spacing-lg);
+    margin-bottom: var(--sn-spacing-xl);
+}
+
+.sn-chart-container {
+    padding: var(--sn-spacing-md);
+    background-color: var(--sn-bg-secondary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 8px;
+}
+
+.sn-chart-container h3 {
+    margin: 0 0 var(--sn-spacing-md) 0;
+    color: var(--sn-text-primary);
+}
+
+.sn-chart-canvas {
+    min-height: 200px;
+}
+
+.sn-bar-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    height: 200px;
+}
+
+.sn-bar-chart__bar {
+    position: relative;
+    width: 20px;
+    background-color: var(--sn-color-primary);
+    border-radius: 4px 4px 0 0;
+    transition: all var(--sn-transition-fast);
+}
+
+.sn-bar-chart__bar:hover {
+    opacity: 0.8;
+}
+
+.sn-bar-chart__value {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8em;
+    color: var(--sn-text-secondary);
+}
+
+.sn-bar-chart__label {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7em;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.sn-line-chart {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 200px;
+}
+
+.sn-line-chart__point {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sn-spacing-xs);
+}
+
+.sn-line-chart__value {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: var(--sn-text-primary);
+}
+
+.sn-line-chart__label {
+    font-size: 0.8em;
+    color: var(--text-muted);
+}
+
+.sn-dashboard__history {
+    background-color: var(--sn-bg-secondary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.sn-history__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--sn-spacing-md);
+    background-color: var(--sn-bg-primary);
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.sn-history__header h3 {
+    margin: 0;
+    color: var(--sn-text-primary);
+}
+
+.sn-history__filter {
+    padding: var(--sn-spacing-xs) var(--sn-spacing-sm);
+    background-color: var(--sn-bg-secondary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    color: var(--sn-text-primary);
+    cursor: pointer;
+}
+
+.sn-history__table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sn-history__table th {
+    padding: var(--sn-spacing-sm);
+    text-align: left;
+    background-color: var(--sn-bg-primary);
+    color: var(--sn-text-primary);
+    font-weight: 600;
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.sn-history__table td {
+    padding: var(--sn-spacing-sm);
+    color: var(--sn-text-primary);
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.sn-history__table tr:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+.sn-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.sn-status--completed {
+    background-color: rgba(25, 135, 84, 0.2);
+    color: var(--sn-color-success);
+}
+
+.sn-status--failed {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: var(--sn-color-error);
+}
+
+.sn-status--processing {
+    background-color: rgba(94, 129, 172, 0.2);
+    color: var(--sn-color-primary);
+}
+
+.sn-status--pending {
+    background-color: rgba(108, 117, 125, 0.2);
+    color: var(--text-muted);
+}
+
+.sn-status--cancelled {
+    background-color: rgba(253, 126, 20, 0.2);
+    color: var(--sn-color-warning);
+}
+
+.sn-action-btn {
+    padding: var(--sn-spacing-xs) var(--sn-spacing-sm);
+    background-color: transparent;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    color: var(--sn-color-primary);
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all var(--sn-transition-fast);
+}
+
+.sn-action-btn:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+/* ===== 접근성 ===== */
+
+/* 포커스 스타일 */
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--sn-color-primary);
+    outline-offset: 2px;
+}
+
+/* 모션 감소 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms;
+        animation-iteration-count: 1;
+        transition-duration: 0.01ms;
+        scroll-behavior: auto;
+    }
+}
+
+/* ===== 반응형 디자인 ===== */
+
+@media (max-width: 768px) {
+    .sn-toast-container {
+        padding: var(--sn-spacing-sm);
+    }
+
+    .sn-toast {
+        min-width: 250px;
+        max-width: calc(100vw - 32px);
+    }
+
+    .sn-modal-notification {
+        min-width: 90%;
+        max-width: 90%;
+    }
+
+    .sn-dashboard__stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sn-dashboard__charts {
+        grid-template-columns: 1fr;
+    }
+
+    .sn-history__table {
+        font-size: 0.85em;
+    }
+
+    .sn-history__table th,
+    .sn-history__table td {
+        padding: var(--sn-spacing-xs);
+    }
+}
+
+@media (max-width: 480px) {
+    .sn-dashboard__header {
+        flex-direction: column;
+        gap: var(--sn-spacing-md);
+        align-items: flex-start;
+    }
+
+    .sn-dashboard__controls {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .sn-dashboard__controls button {
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .sn-history__table {
+        display: block;
+        overflow-x: auto;
+    }
+}
