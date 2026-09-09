@@ -1,0 +1,190 @@
+import { App, PluginSettingTab, Setting } from 'obsidian';
+import type SpeechToTextPlugin from '../../main';
+
+/**
+ * 단순화된 설정 탭 - 문제 해결을 위한 최소 버전
+ */
+export class SimpleSettingsTab extends PluginSettingTab {
+    plugin: SpeechToTextPlugin;
+
+    constructor(app: App, plugin: SpeechToTextPlugin) {
+        super(app, plugin);
+        this.plugin = plugin;
+    }
+
+    display(): void {
+        const { containerEl } = this;
+        if (!containerEl) {
+            this.debug('SimpleSettingsTab display called without container element');
+            return;
+        }
+
+        this.debug('=== SimpleSettingsTab display() called ===');
+        containerEl.empty();
+
+        // 제목
+        new Setting(containerEl).setName('Transcription').setHeading();
+
+        // Provider 선택 드롭다운 - 가장 중요한 기능
+        new Setting(containerEl).setName('API configuration').setHeading();
+
+        try {
+            this.debug('Creating provider dropdown...');
+
+            // Provider 선택
+            new Setting(containerEl)
+                .setName('Transcription provider')
+                .setDesc('Select the speech-to-text provider')
+                .addDropdown((dropdown) => {
+                    this.debug('Adding options to dropdown...');
+                    dropdown
+                        .addOption('auto', 'Automatic (recommended)')
+                        .addOption('whisper', 'General transcription')
+                        .addOption('deepgram', 'Fast transcription')
+                        .setValue(this.plugin.settings.provider || 'auto')
+                        .onChange(async (value) => {
+                            this.debug('Provider changed to:', value);
+                            if (this.isProviderValue(value)) {
+                                this.plugin.settings.provider = value;
+                                await this.plugin.saveSettings();
+                                // UI 새로고침
+                                this.display();
+                            }
+                        });
+                    this.debug('Dropdown created successfully');
+                });
+
+            // 선택된 Provider에 따라 API 키 표시
+            const provider = this.plugin.settings.provider || 'auto';
+            this.debug('Current provider:', provider);
+
+            // Auto 모드일 때는 양쪽 API 키 모두 표시
+            if (provider === 'auto' || provider === 'whisper') {
+                new Setting(containerEl)
+                    .setName('General provider API key')
+                    .setDesc('Enter your API key for transcription')
+                    .addText((text) =>
+                        text
+                            .setPlaceholder('Enter sk-...')
+                            .setValue(this.plugin.settings.apiKey || '')
+                            .onChange(async (value) => {
+                                this.plugin.settings.apiKey = value;
+                                this.plugin.settings.whisperApiKey = value;
+                                await this.plugin.saveSettings();
+                            })
+                    );
+            }
+
+            if (provider === 'auto' || provider === 'deepgram') {
+                new Setting(containerEl)
+                    .setName('Fast provider API key')
+                    .setDesc('Enter your API key')
+                    .addText((text) =>
+                        text
+                            .setPlaceholder('Enter your API key...')
+                            .setValue(this.plugin.settings.deepgramApiKey || '')
+                            .onChange(async (value) => {
+                                this.plugin.settings.deepgramApiKey = value;
+                                await this.plugin.saveSettings();
+                            })
+                    );
+
+                // Deepgram 모델 선택
+                if (provider === 'deepgram') {
+                    new Setting(containerEl)
+                        .setName('Fast model')
+                        .setDesc('Select the model to use')
+                        .addDropdown((dropdown) =>
+                            dropdown
+                                .addOption('nova-2', 'Nova 2 (premium)')
+                                .addOption('nova', 'Nova (standard)')
+                                .addOption('enhanced', 'Enhanced')
+                                .addOption('base', 'Base (economy)')
+                                .setValue(
+                                    this.plugin.settings.transcription?.deepgram?.model || 'nova-2'
+                                )
+                                .onChange(async (value) => {
+                                    if (!this.plugin.settings.transcription) {
+                                        this.plugin.settings.transcription = {};
+                                    }
+                                    if (!this.plugin.settings.transcription.deepgram) {
+                                        this.plugin.settings.transcription.deepgram = {
+                                            enabled: true,
+                                        };
+                                    }
+                                    this.plugin.settings.transcription.deepgram.model = value;
+                                    await this.plugin.saveSettings();
+                                })
+                        );
+                }
+            }
+
+            // 기본 설정들
+            new Setting(containerEl).setName('Basics').setHeading();
+
+            new Setting(containerEl)
+                .setName('Language')
+                .setDesc('Primary language for transcription')
+                .addDropdown((dropdown) =>
+                    dropdown
+                        .addOption('auto', 'Auto-detect')
+                        .addOption('en', 'English')
+                        .addOption('ko', 'Korean')
+                        .addOption('ja', 'Japanese')
+                        .addOption('zh', 'Chinese')
+                        .setValue(this.plugin.settings.language || 'auto')
+                        .onChange(async (value) => {
+                            this.plugin.settings.language = value;
+                            await this.plugin.saveSettings();
+                        })
+                );
+
+            new Setting(containerEl)
+                .setName('Auto-insert transcription')
+                .setDesc('Automatically insert transcribed text into the active note')
+                .addToggle((toggle) =>
+                    toggle
+                        .setValue(this.plugin.settings.autoInsert || false)
+                        .onChange(async (value) => {
+                            this.plugin.settings.autoInsert = value;
+                            await this.plugin.saveSettings();
+                        })
+                );
+
+            // 디버그 정보
+            new Setting(containerEl).setName('Debug details').setHeading();
+
+            const debugInfo = {
+                provider: this.plugin.settings.provider,
+                hasWhisperKey: !!this.plugin.settings.apiKey,
+                hasDeepgramKey: !!this.plugin.settings.deepgramApiKey,
+                language: this.plugin.settings.language,
+                model: this.plugin.settings.model,
+                deepgramModel: this.plugin.settings.transcription?.deepgram?.model,
+            };
+
+            containerEl.createEl('pre', {
+                text: JSON.stringify(debugInfo, null, 2),
+                cls: 'debug-info',
+            });
+
+            this.debug('=== SimpleSettingsTab rendered successfully ===');
+        } catch (error) {
+            console.error('Error in SimpleSettingsTab:', error);
+            containerEl.createEl('p', {
+                text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                cls: 'mod-warning',
+            });
+        }
+    }
+
+    private debug(...args: unknown[]): void {
+        if (this.plugin.settings?.debugMode) {
+            console.debug('[SimpleSettingsTab]', ...args);
+        }
+    }
+
+    private isProviderValue(value: string): value is 'auto' | 'whisper' | 'deepgram' {
+        return value === 'auto' || value === 'whisper' || value === 'deepgram';
+    }
+}
