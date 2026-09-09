@@ -1,0 +1,178 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+out/
+main.js
+styles.css
+*.js
+*.js.map
+*.d.ts
+!*.config.js
+!*.config.mjs
+!jest.config.*
+!tests/**/*.js
+!tests/**/*.ts
+!test/**/*.js
+!test/**/*.ts
+
+# Scripts (test/internal tooling only - keep release scripts)
+scripts/test-*
+scripts/debug-*
+scripts/open-coverage.js
+
+# Testing
+coverage/
+*.lcov
+.nyc_output/
+test-results/
+junit.xml
+tests/**/*.actual.*
+tests/**/*.error.*
+tests/**/*.output.*
+tests/**/__snapshots__/
+.jest-cache/
+test/*.md
+
+# Audio files (test data, recordings)
+*.m4a
+*.mp3
+*.wav
+*.ogg
+*.flac
+*.aac
+*.wma
+*.webm
+
+# IDE
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.iml
+*.sublime-*
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Logs
+logs/
+*.log
+release_log.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Package managers
+.npm
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Obsidian
+.obsidian/
+data.json
+.obsidian-test/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~
+*.bak
+*.backup
+.cache/
+.temp/
+tmp/
+
+# Performance & Profiling
+*.cpuprofile
+*.heapsnapshot
+.clinic/
+
+# Bundle analysis
+bundle-stats.html
+bundle-report.html
+.webpack-bundle-analyzer/
+
+# Security
+*.key
+*.pem
+*.p12
+*.pfx
+.secrets/
+
+# Root optimization
+*.pid
+*.seed
+*.pid.lock
+.eslintcache
+.stylelintcache
+.parcel-cache/
+
+# Test artifacts
+test-data/
+mocks/**/*.snapshot
+__mocks__/**/*.snapshot
+
+# Development documentation
+docs/
+*.md
+!docs/
+!docs/**/*.md
+!README.md
+!CHANGELOG.md
+!CONTRIBUTING.md
+!LICENSE.md
+!AGENTS.md
+!AGENTS.ko.md
+!CODE_OF_CONDUCT.md
+!RELEASING.md
+
+# Requirement documents
+requirment*.md
+
+# Local review notes
+REVIEW_NOTES_PR8004.md
+
+# Lint and typecheck output files
+lint-output.txt
+lint_output.txt
+lint_obsidian_output.txt
+typecheck_output.txt
+
+# Claude Code settings
+.claude/
+
+# Agent documentation (not needed for plugin distribution)
+AGENTS.ko.md
+AGENTS.md
+CODE_OF_CONDUCT.md
+
+# Semantic Release
+.semantic-release-cache/
