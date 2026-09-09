@@ -1,0 +1,18 @@
+/* Settings view aggregator for Speech-to-Text plugin */
+/* Imports existing UI styles so a single stylesheet can be referenced. */
+
+@import url('../styles/provider-settings.css');
+@import url('../styles/progress.css');
+@import url('../styles/notifications.css');
+@import url('../styles/file-picker.css');
+
+/* Minimal layout tweaks for settings containers */
+.deepgram-settings-container {
+    display: block;
+    margin-top: 8px;
+}
+
+.provider-settings {
+    display: block;
+}
+
